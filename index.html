@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Reporte de Factibilidad · Teletrabajo</title>
+  <style>
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1020;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.04);
+      --stroke: rgba(255,255,255,.10);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.65);
+      --muted2: rgba(255,255,255,.48);
+      --accent: #7AA2FF;
+      --accentSoft: rgba(122,162,255,.18);
+      --good:#4ADE80;
+      --warn:#FBBF24;
+      --bad:#FB7185;
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 12% 8%, rgba(122,162,255,.30), transparent 58%),
+        radial-gradient(900px 520px at 88% 18%, rgba(74,222,128,.16), transparent 60%),
+        radial-gradient(800px 560px at 56% 92%, rgba(251,113,133,.12), transparent 56%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+
+    .container{max-width:1120px;margin:0 auto;padding:22px 18px 34px}
+
+    /* Header */
+    .header{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .hLeft h1{
+      margin:0; font-size:14px; letter-spacing:.28em; font-weight:900; color:rgba(255,255,255,.65);
+      text-transform:uppercase;
+    }
+    .hLeft .cargo{
+      margin:8px 0 0; font-size:30px; font-weight:1000; letter-spacing:.2px;
+    }
+    .hRight{
+      display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 11px; border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      color: rgba(255,255,255,.78);
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    /* Panels */
+    .gridTop{
+      display:grid;
+      grid-template-columns: 1fr 1.35fr .75fr;
+      gap:12px;
+    }
+    @media(max-width:980px){
+      .gridTop{grid-template-columns:1fr}
+    }
+
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .cardHeader{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px 14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      background:
+        radial-gradient(600px 120px at 20% 0%, rgba(122,162,255,.18), transparent 60%),
+        rgba(0,0,0,.10);
+    }
+    .cardHeader h2{margin:0;font-size:13px;color:rgba(255,255,255,.88); letter-spacing:.2px}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.78);
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .cardBody{padding:14px}
+    .muted{color:var(--muted); font-size:12px; line-height:1.35}
+    .small{color:var(--muted); font-size:12px}
+
+    /* Upload (collapsed-ish) */
+    .uploadRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .uploadRow > *{flex:1}
+
+    input, select, textarea, button{font:inherit}
+    input, select, textarea{
+      width:100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.24);
+      color: var(--text);
+      padding: 10px 12px;
+      outline:none;
+      transition: border-color .15s;
+    }
+    textarea{min-height:86px; resize:vertical; line-height:1.35}
+    input:focus, select:focus, textarea:focus{border-color: rgba(122,162,255,.55)}
+    button{
+      border-radius: 14px;
+      border: 1px solid rgba(122,162,255,.35);
+      background: rgba(122,162,255,.15);
+      color: rgba(255,255,255,.90);
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight:900;
+      white-space:nowrap;
+      transition: border-color .15s, background .15s;
+    }
+    button:hover{border-color: rgba(122,162,255,.55); background: rgba(122,162,255,.20)}
+    button.secondary{
+      border-color: rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    button.secondary:hover{border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.08)}
+
+    /* Gauge */
+    .gaugeWrap{display:grid; place-items:center; padding:10px 0 2px}
+    .gaugeText{margin-top:-6px; text-align:center}
+    .gaugeText .pct{font-size:38px; font-weight:1000; letter-spacing:.3px}
+    .gaugeText .lbl{font-size:12px; color:var(--muted); letter-spacing:.2em; text-transform:uppercase}
+    .modelPill{
+      margin-top:10px;
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:9px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.84);
+      font-weight:950;
+      font-size:12px;
+      min-width: 150px;
+    }
+
+    /* Bars list */
+    .bars{display:flex; flex-direction:column; gap:10px}
+    .barRow{display:grid; grid-template-columns: 46px 1fr 210px; gap:10px; align-items:center}
+    @media(max-width:980px){.barRow{grid-template-columns:46px 1fr}}
+    .barPct{font-weight:950; color: rgba(122,162,255,.95); font-size:12px}
+    .barName{
+      color: rgba(255,255,255,.88);
+      font-size:12px;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .barTrack{
+      height:10px; border-radius:999px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+    }
+    .barFill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(122,162,255,.90), rgba(122,162,255,.55));
+    }
+
+    /* Model table */
+    .modelTable{display:flex; flex-direction:column; gap:8px}
+    .mtRow{
+      display:flex; justify-content:space-between; gap:10px; align-items:center;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.86);
+      opacity:.72;
+      transition: opacity .15s, border-color .15s, background .15s;
+    }
+    .mtRow.active{
+      opacity:1;
+      border-color: rgba(122,162,255,.55);
+      background: linear-gradient(180deg, rgba(122,162,255,.18), rgba(0,0,0,.14));
+    }
+    .mtName{font-weight:1000; font-size:12px}
+    .mtRange{font-size:12px; color:var(--muted)}
+
+    /* Section title */
+    .sectionTitle{
+      display:flex; align-items:center; gap:10px;
+      margin: 14px 0 10px;
+      color: rgba(255,255,255,.85);
+      font-weight:1000;
+    }
+    .dot{
+      width:22px; height:22px; border-radius:8px;
+      display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(122,162,255,.12);
+      color: rgba(122,162,255,.95);
+      font-size:12px; font-weight:1000;
+    }
+
+    /* Matrix table */
+    .tableWrap{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      border-radius: var(--r);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      font-size:12px;
+    }
+    thead th{
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.86);
+      text-align:left;
+      padding:12px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-weight:1000;
+      letter-spacing:.2px;
+      vertical-align:bottom;
+    }
+    thead th .subw{display:block; font-weight:800; margin-top:4px; color:var(--muted); font-size:11px}
+    tbody td{
+      padding:12px 12px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      vertical-align:top;
+      color: rgba(255,255,255,.86);
+    }
+    tbody tr:hover td{background: rgba(255,255,255,.03)}
+    .colFunc{min-width:280px}
+    .weightInput{
+      width:74px;
+      padding:10px 10px;
+      border-radius:12px;
+      text-align:center;
+      font-weight:950;
+    }
+    .select{
+      min-width:170px;
+    }
+    .stars{
+      margin-top:6px;
+      display:flex; gap:4px;
+      color: rgba(255,255,255,.20);
+      user-select:none;
+    }
+    .stars span.active{color: rgba(74,222,128,.85)}
+    .minitools{display:flex; gap:8px; justify-content:flex-end}
+    .iconbtn{
+      padding:9px 11px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      cursor:pointer;
+      font-weight:1000;
+      line-height:1;
+      color: rgba(255,255,255,.86);
+    }
+    .iconbtn:hover{border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.07)}
+
+    /* Methodology */
+    .methodBox{
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      border-radius: var(--r);
+      padding:12px 14px;
+      box-shadow: var(--shadow);
+    }
+    .methodBox ul{margin:10px 0 0; padding-left:18px}
+    .methodBox li{margin:6px 0; color: rgba(255,255,255,.80)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace}
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="hLeft">
+        <h1>REPORTE DE FACTIBILIDAD</h1>
+        <div class="cargo" id="cargoTitle">Cargo —</div>
+      </div>
+      <div class="hRight">
+        <div class="badge" id="issueDate">FECHA DE EMISIÓN · —</div>
+        <div class="badge mono">Interlocución 60% · Papel 20% · Herramientas 20%</div>
+      </div>
+    </div>
+
+    <!-- Upload (small) -->
+    <div class="card" style="margin-bottom:12px">
+      <div class="cardHeader">
+        <h2>Fuente del descriptor</h2>
+        <span class="chip">.docx</span>
+      </div>
+      <div class="cardBody">
+        <div class="uploadRow">
+          <input id="file" type="file" accept=".docx" />
+          <button id="parseBtn">Cargar tabla “Principales Resultados”</button>
+          <button class="secondary" id="clearBtn">Limpiar</button>
+        </div>
+        <textarea id="rawText" placeholder="Opcional: pega aquí SOLO el fragmento de la tabla (N°, % Importancia, Acciones...) si no usarás .docx."></textarea>
+        <div class="muted">La app toma <b>solo</b> “Título del Cargo” y la tabla “Principales Resultados” → usa <b>Acciones</b> + <b>% Importancia</b>.</div>
+      </div>
+    </div>
+
+    <!-- Top grid -->
+    <div class="gridTop">
+
+      <!-- Gauge -->
+      <div class="card">
+        <div class="cardHeader">
+          <h2>ÍNDICE GLOBAL</h2>
+          <span class="chip" id="globalLabel">—</span>
+        </div>
+        <div class="cardBody">
+          <div class="gaugeWrap">
+            <svg width="220" height="140" viewBox="0 0 220 140" aria-label="gauge">
+              <!-- track -->
+              <path id="gTrack"
+                d="M 30 120 A 80 80 0 0 1 190 120"
+                fill="none" stroke="rgba(255,255,255,.12)" stroke-width="16" stroke-linecap="round"/>
+              <!-- fill -->
+              <path id="gFill"
+                d="M 30 120 A 80 80 0 0 1 190 120"
+                fill="none" stroke="rgba(122,162,255,.9)" stroke-width="16" stroke-linecap="round"
+                stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+            </svg>
+            <div class="gaugeText">
+              <div class="pct" id="globalPct">—</div>
+              <div class="lbl">FACTIBILIDAD</div>
+              <div class="modelPill" id="modelPill">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail bars -->
+      <div class="card">
+        <div class="cardHeader">
+          <h2>DETALLE POR FUNCIÓN (% FACTIBILIDAD)</h2>
+          <span class="chip" id="funcCount">0 funciones</span>
+        </div>
+        <div class="cardBody">
+          <div class="bars" id="bars"></div>
+          <div class="muted" style="margin-top:10px">El detalle usa el score de cada función (promedio 60/20/20) y lo muestra como barra.</div>
+        </div>
+      </div>
+
+      <!-- Models -->
+      <div class="card">
+        <div class="cardHeader">
+          <h2>TABLA DE MODELOS</h2>
+          <span class="chip">según %</span>
+        </div>
+        <div class="cardBody">
+          <div class="modelTable">
+            <div class="mtRow" data-model="presencial">
+              <div class="mtName">Presencial</div>
+              <div class="mtRange">&lt; 50%</div>
+            </div>
+            <div class="mtRow" data-model="4p1t">
+              <div class="mtName">4 Presencial / 1 Teletrabajo</div>
+              <div class="mtRange">≥ 50% y &lt; 70%</div>
+            </div>
+            <div class="mtRow" data-model="3p2t">
+              <div class="mtName">3 Presencial / 2 Teletrabajo</div>
+              <div class="mtRange">≥ 70% y &lt; 80%</div>
+            </div>
+            <div class="mtRow" data-model="100t">
+              <div class="mtName">100% Teletrabajo</div>
+              <div class="mtRange">≥ 80%</div>
+            </div>
+          </div>
+          <div class="muted" style="margin-top:10px">Se resalta el modelo recomendado automáticamente.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Matrix -->
+    <div class="sectionTitle" style="margin-top:16px">
+      <div class="dot">2</div>
+      <div>Matriz de Evaluación</div>
+    </div>
+
+    <div class="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="colFunc">FUNCIÓN DEL CARGO</th>
+            <th>PESO %</th>
+            <th>INTERLOCUCIÓN FÍSICA <span class="subw">Peso: 60%</span></th>
+            <th>DOC. EN PAPEL <span class="subw">Peso: 20%</span></th>
+            <th>HERRAMIENTAS FÍSICAS <span class="subw">Peso: 20%</span></th>
+            <th style="width:110px;text-align:right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="muted" style="text-align:center; margin:8px 0 2px">
+      Selecciona la frecuencia para cada dimensión. El cálculo se actualiza automáticamente.
+    </div>
+
+    <!-- Methodology -->
+    <div class="sectionTitle" style="margin-top:16px">
+      <div class="dot">i</div>
+      <div>Metodología de Cálculo</div>
+    </div>
+
+    <div class="methodBox">
+      <ul>
+        <li><b>3 dimensiones por función:</b> Interlocución Física (60%), Documentación en Papel (20%) y Herramientas Físicas (20%).</li>
+        <li><b>Factor de Remotidad (días presenciales):</b> 0d=100% (1.00) · 1d=75% (0.75) · 2d=50% (0.50) · 3–4d=25% (0.25) · 5d=0% (0.00).</li>
+        <li><b>Cálculo final:</b> el índice global es la <b>suma ponderada</b> de la factibilidad de cada función multiplica por su <b>peso (% Importancia)</b> dentro del cargo.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- DOCX -> text -->
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+  <script>
+    (() => {
+      const el = (id) => document.getElementById(id);
+
+      const presenceOptions = [
+        {key:"0",   label:"nunca (0 días)", rel:1.00, stars:5},
+        {key:"1",   label:"casi nunca (1 día)", rel:0.75, stars:4},
+        {key:"2",   label:"ocasional (2 días)", rel:0.50, stars:3},
+        {key:"3-4", label:"casi siempre (3–4 días)", rel:0.25, stars:2},
+        {key:"5",   label:"siempre (5 días)", rel:0.00, stars:1},
+      ];
+
+      const W = { inter: 0.60, paper: 0.20, tool: 0.20 };
+
+      const state = { cargo: "—", funcs: [] };
+      const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+
+      function nowDDMMYYYY(){
+        const d = new Date();
+        const dd = String(d.getDate()).padStart(2,"0");
+        const mm = String(d.getMonth()+1).padStart(2,"0");
+        const yy = d.getFullYear();
+        return `${dd}-${mm}-${yy}`;
+      }
+
+      function normalizeSpaces(s){
+        return String(s || "").replace(/\u00A0/g," ").replace(/[ \t]+/g," ").trim();
+      }
+
+      async function readDocx(file){
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return (result.value || "").trim();
+      }
+
+      function pickCargoTitle(text){
+        const t = text.replace(/\r/g,"");
+        const m = t.match(/Título del Cargo\s*\n\s*([^\n]+)/i);
+        return (m && m[1]) ? normalizeSpaces(m[1]) : "—";
+      }
+
+      function slicePrincipalesResultadosBlock(text){
+        const t = text.replace(/\r/g,"");
+        const start = t.search(/Principales Resultados/i);
+        if(start === -1) return t;
+
+        const after = t.slice(start);
+        const endIdx =
+          after.search(/\n\s*3\.\s*Organización del Cargo/i) !== -1 ? after.search(/\n\s*3\.\s*Organización del Cargo/i) :
+          after.search(/\n\s*3\.\s*/i) !== -1 ? after.search(/\n\s*3\.\s*/i) :
+          after.search(/\n\s*Organización del Cargo/i) !== -1 ? after.search(/\n\s*Organización del Cargo/i) :
+          -1;
+
+        return endIdx === -1 ? after : after.slice(0, endIdx);
+      }
+
+      function parseRowsFromBlock(blockText){
+        const lines = blockText
+          .split("\n")
+          .map(normalizeSpaces)
+          .filter(l => l.length > 0);
+
+        let startIdx = 0;
+        for(let i=0;i<lines.length;i++){
+          const l = lines[i].toLowerCase();
+          if(l.includes("n°") && l.includes("%") && l.includes("importancia") && l.includes("acciones")){
+            startIdx = i + 1;
+            break;
+          }
+        }
+
+        const out = [];
+        const isRowStart = (s) => /^\d{1,2}$/.test(s);
+        const isPercent = (s) => /^\d{1,3}\s*%$/.test(s);
+
+        let i = startIdx;
+        while(i < lines.length){
+          if(!isRowStart(lines[i])) { i++; continue; }
+          const n = Number(lines[i]);
+          const pctLine = lines[i+1] || "";
+          if(!isPercent(pctLine)){ i++; continue; }
+          const pct = Number(pctLine.replace("%","").trim());
+
+          let j = i + 2;
+          const accionesParts = [];
+          while(j < lines.length && !isRowStart(lines[j])){
+            const low = lines[j].toLowerCase();
+            if(low.includes("resultado final esperado")) break;
+            if(low === "proceso" || low === "macroproceso") break;
+            // cortar cuando parece el "para qué" (resultado esperado)
+            if(low.startsWith("asegurar ") || low.startsWith("contribuir ") || low.startsWith("proveer ")) break;
+
+            accionesParts.push(lines[j]);
+            j++;
+          }
+
+          const acciones = normalizeSpaces(accionesParts.join(" "));
+          if(acciones.length >= 8){
+            out.push({ id: uid(), n, pct, weight: 0, text: acciones, inter:"1", paper:"1", tool:"1" });
+          }
+          i = j;
+        }
+
+        // fallback regex
+        if(out.length === 0){
+          const raw = blockText.replace(/\r/g,"");
+          const re = /(\d{1,2})\s*\n\s*(\d{1,3})%\s*\n([\s\S]*?)(?=\n\s*\d{1,2}\s*\n\s*\d{1,3}%|\n\s*3\.\s|\n\s*Organización del Cargo|$)/g;
+          let m;
+          while((m = re.exec(raw))){
+            const n = Number(m[1]), pct = Number(m[2]);
+            const chunk = normalizeSpaces(m[3] || "");
+            const cut = chunk.split(/Resultado Final Esperado/i)[0] || chunk;
+            const acciones = normalizeSpaces(cut.split(/\n/).join(" "));
+            if(acciones.length >= 8){
+              out.push({ id: uid(), n, pct, weight: 0, text: acciones, inter:"1", paper:"1", tool:"1" });
+            }
+          }
+        }
+
+        out.sort((a,b)=>a.n - b.n);
+
+        const sumPct = out.reduce((acc,r)=>acc + (Number(r.pct)||0), 0);
+        if(sumPct > 0){
+          out.forEach(r => r.weight = (Number(r.pct)||0)/sumPct);
+        } else {
+          const wf = out.length ? 1/out.length : 0;
+          out.forEach(r => { r.weight = wf; r.pct = Math.round(wf*100); });
+        }
+        return out;
+      }
+
+      function relFromKey(key){
+        const it = presenceOptions.find(o => o.key === key);
+        return it ? it.rel : 0;
+      }
+      function starsFromKey(key){
+        const it = presenceOptions.find(o => o.key === key);
+        return it ? it.stars : 0;
+      }
+
+      function clamp01(x){
+        if(Number.isNaN(x)) return 0;
+        return Math.max(0, Math.min(1, x));
+      }
+
+      function scoreFunc01(f){
+        return (
+          W.inter * relFromKey(f.inter) +
+          W.paper * relFromKey(f.paper) +
+          W.tool  * relFromKey(f.tool)
+        );
+      }
+
+      function computeGlobal(){
+        if(state.funcs.length === 0) return null;
+        let total01 = 0;
+        for(const f of state.funcs){
+          const wf = clamp01(Number(f.weight));
+          total01 += wf * scoreFunc01(f);
+        }
+        const sumW = state.funcs.reduce((acc,f)=>acc + clamp01(Number(f.weight)), 0) || 1;
+        total01 = total01 / sumW;
+        return { score01: total01, score100: Math.round(total01 * 100) };
+      }
+
+      function labelFromScore100(s){
+        if(s >= 70) return {t:"Alta", cls:"good"};
+        if(s >= 50) return {t:"Media", cls:"warn"};
+        return {t:"Baja", cls:"bad"};
+      }
+
+      function recommendModel(score){
+        if(score < 50) return "presencial";
+        if(score < 70) return "4p1t";
+        if(score < 80) return "3p2t";
+        return "100t";
+      }
+      function modelLabel(m){
+        return ({
+          presencial:"Presencial",
+          "4p1t":"4 Presencial / 1 Teletrabajo",
+          "3p2t":"3 Presencial / 2 Teletrabajo",
+          "100t":"100% Teletrabajo"
+        })[m] || "—";
+      }
+
+      function setGauge(score100){
+        // Semi arc length approx. Use stroke-dasharray already set, adjust dashoffset.
+        // We used path length ~251.2 (from earlier). We'll map 0..100 => full offset..0
+        const total = 251.2;
+        const pct = Math.max(0, Math.min(100, score100));
+        const offset = total * (1 - pct/100);
+        const fill = el("gFill");
+        fill.style.strokeDasharray = total;
+        fill.style.strokeDashoffset = offset;
+
+        // color by band
+        const band = labelFromScore100(pct).cls;
+        fill.style.stroke =
+          band === "good" ? "rgba(74,222,128,.90)" :
+          band === "warn" ? "rgba(251,191,36,.92)" :
+                            "rgba(251,113,133,.92)";
+      }
+
+      function renderTop(glob){
+        el("issueDate").textContent = `FECHA DE EMISIÓN · ${nowDDMMYYYY()}`;
+        el("cargoTitle").textContent = state.cargo || "Cargo —";
+
+        const models = document.querySelectorAll(".mtRow");
+        models.forEach(n => n.classList.remove("active"));
+
+        if(!glob){
+          el("globalPct").textContent = "—";
+          el("globalLabel").textContent = "—";
+          el("modelPill").textContent = "—";
+          el("funcCount").textContent = "0 funciones";
+          el("globalExplain").textContent = "Carga funciones para calcular.";
+          setGauge(0);
+          el("bars").innerHTML = "";
+          return;
+        }
+
+        const tag = labelFromScore100(glob.score100);
+        el("globalPct").textContent = `${glob.score100}%`;
+        el("globalLabel").textContent = `Factibilidad ${tag.t}`;
+        el("modelPill").textContent = modelLabel(recommendModel(glob.score100));
+        el("funcCount").textContent = `${state.funcs.length} funciones`;
+        el("globalExplain").textContent = "Índice ponderado por % Importancia del cargo.";
+
+        setGauge(glob.score100);
+
+        const rec = recommendModel(glob.score100);
+        const active = document.querySelector(`.mtRow[data-model="${rec}"]`);
+        if(active) active.classList.add("active");
+
+        renderBars();
+      }
+
+      function presenceSelect(k, id, selected){
+        return `
+          <select class="select" data-k="${k}" data-id="${id}">
+            ${presenceOptions.map(o => `<option value="${o.key}" ${o.key===selected?"selected":""}>${o.label}</option>`).join("")}
+          </select>
+        `;
+      }
+
+      function stars(starCount){
+        const s = Math.max(0, Math.min(5, starCount));
+        return `
+          <div class="stars" aria-label="rating">
+            ${[1,2,3,4,5].map(i => `<span class="${i<=s?'active':''}">●</span>`).join("")}
+          </div>
+        `;
+      }
+
+      function escapeHtml(s){
+        return String(s)
+          .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      }
+
+      function move(id, dir){
+        const i = state.funcs.findIndex(f => f.id === id);
+        const j = i + dir;
+        if(i < 0 || j < 0 || j >= state.funcs.length) return;
+        const t = state.funcs[i];
+        state.funcs[i] = state.funcs[j];
+        state.funcs[j] = t;
+      }
+
+      function renormalizeWeights(){
+        const sum = state.funcs.reduce((acc,r)=>acc + (Number(r.pct)||0), 0) || 1;
+        state.funcs.forEach(r => r.weight = (Number(r.pct)||0)/sum);
+      }
+
+      function renderTable(){
+        const tb = el("tbody");
+        tb.innerHTML = "";
+
+        state.funcs.forEach((f, idx) => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td class="colFunc">
+              <div style="font-weight:1000; margin-bottom:6px; color:rgba(255,255,255,.92)">
+                ${escapeHtml(shortTitle(f.text))}
+              </div>
+              <div class="muted">${escapeHtml(f.text)}</div>
+            </td>
+            <td>
+              <input class="weightInput" data-k="pct" data-id="${f.id}" type="number" min="0" max="100" step="1"
+                value="${Number.isFinite(f.pct)?f.pct:Math.round((Number(f.weight)||0)*100)}" />
+            </td>
+            <td>
+              ${presenceSelect("inter", f.id, f.inter)}
+              ${stars(starsFromKey(f.inter))}
+            </td>
+            <td>
+              ${presenceSelect("paper", f.id, f.paper)}
+              ${stars(starsFromKey(f.paper))}
+            </td>
+            <td>
+              ${presenceSelect("tool", f.id, f.tool)}
+              ${stars(starsFromKey(f.tool))}
+            </td>
+            <td style="text-align:right">
+              <div class="minitools">
+                <button class="iconbtn" data-act="up" data-id="${f.id}" title="Subir">↑</button>
+                <button class="iconbtn" data-act="down" data-id="${f.id}" title="Bajar">↓</button>
+                <button class="iconbtn" data-act="del" data-id="${f.id}" title="Eliminar">×</button>
+              </div>
+            </td>
+          `;
+          tb.appendChild(tr);
+        });
+
+        // listeners
+        tb.querySelectorAll("select,input").forEach(n => {
+          n.addEventListener("input", () => {
+            const id = n.getAttribute("data-id");
+            const k  = n.getAttribute("data-k");
+            const fx = state.funcs.find(x => x.id === id);
+            if(!fx) return;
+
+            if(k === "pct"){
+              fx.pct = Math.max(0, Math.min(100, Number(n.value)||0));
+              renormalizeWeights();
+            } else {
+              fx[k] = n.value;
+            }
+            renderAll();
+          });
+        });
+
+        tb.querySelectorAll("button[data-act]").forEach(b => {
+          b.addEventListener("click", () => {
+            const act = b.getAttribute("data-act");
+            const id  = b.getAttribute("data-id");
+
+            if(act === "del") state.funcs = state.funcs.filter(x => x.id !== id);
+            if(act === "up") move(id, -1);
+            if(act === "down") move(id, 1);
+
+            renormalizeWeights();
+            renderAll();
+          });
+        });
+      }
+
+      function renderBars(){
+        const box = el("bars");
+        box.innerHTML = "";
+
+        // Show bars based on function score (not weighted by importance for the bar value)
+        const rows = state.funcs.map(f => {
+          const s = Math.round(scoreFunc01(f) * 100);
+          return { name: shortTitle(f.text), pct: s };
+        });
+
+        rows.forEach(r => {
+          const div = document.createElement("div");
+          div.className = "barRow";
+          div.innerHTML = `
+            <div class="barPct">${r.pct}%</div>
+            <div class="barName" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</div>
+            <div class="barTrack"><div class="barFill" style="width:${r.pct}%"></div></div>
+          `;
+          box.appendChild(div);
+        });
+
+        // ensure mobile doesn't overflow
+        if(window.matchMedia("(max-width: 980px)").matches){
+          box.querySelectorAll(".barRow").forEach(br => {
+            br.style.gridTemplateColumns = "46px 1fr";
+            br.querySelector(".barTrack").style.gridColumn = "1 / -1";
+          });
+        }
+      }
+
+      function shortTitle(s){
+        // compact for bar list, keeps it clean like the PDF
+        const t = normalizeSpaces(s);
+        if(t.length <= 34) return t;
+        return t.slice(0, 34).trim() + "…";
+      }
+
+      function renderAll(){
+        renderTop(computeGlobal());
+        renderTable();
+      }
+
+      function resetAll(){
+        state.cargo = "—";
+        state.funcs = [];
+        el("rawText").value = "";
+        el("file").value = "";
+        renderAll();
+      }
+
+      el("clearBtn").addEventListener("click", resetAll);
+
+      el("parseBtn").addEventListener("click", async () => {
+        let text = normalizeSpaces(el("rawText").value || "");
+        const f = el("file").files && el("file").files[0];
+
+        if(f){
+          if(!f.name.toLowerCase().endsWith(".docx")){
+            alert("Solo .docx (no .doc). Convierte el archivo a .docx y vuelve a intentar.");
+            return;
+          }
+          try{
+            text = await readDocx(f);
+            el("rawText").value = text;
+          }catch(err){
+            console.error(err);
+            alert("No pude leer el .docx. Prueba pegando el fragmento de la tabla manualmente.");
+            return;
+          }
+        }
+
+        state.cargo = pickCargoTitle(text) || "—";
+
+        const block = slicePrincipalesResultadosBlock(text);
+        const rows = parseRowsFromBlock(block);
+        state.funcs = rows.length ? rows : parseRowsFromBlock(text);
+
+        if(state.funcs.length === 0){
+          state.funcs = [{
+            id: uid(), n: 1, pct: 100, weight: 1,
+            text: "Función 1 (edita)",
+            inter:"1", paper:"1", tool:"1"
+          }];
+        }
+
+        renormalizeWeights();
+        renderAll();
+      });
+
+      // initial render
+      el("issueDate").textContent = `FECHA DE EMISIÓN · ${nowDDMMYYYY()}`;
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
