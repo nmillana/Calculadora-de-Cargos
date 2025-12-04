@@ -1,54 +1,840 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Calculadora de Factibilidad de Teletrabajo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      /* Custom scrollbar for the table */
-      .custom-scrollbar::-webkit-scrollbar {
-        height: 8px;
-        width: 8px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 4px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #555;
-      }
-      
-      /* Print specific styles */
-      @media print {
-        body {
-          -webkit-print-color-adjust: exact;
-        }
-      }
-    </style>
-    <!-- UMD Scripts for PDF generation to avoid ESM dependency issues -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- Mammoth for .docx parsing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script type="importmap">
-    {
-      "imports": {
-        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
-        "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
-        "react/": "https://aistudiocdn.com/react@^19.2.1/",
-        "react": "https://aistudiocdn.com/react@^19.2.1",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/"
-      }
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Reporte · Factibilidad de Teletrabajo</title>
+  <style>
+    /* ====== LOOK “PDF” (A4) ====== */
+    :root{
+      --ink:#0E1726;
+      --muted:#5B677A;
+      --paper:#ffffff;
+      --line:#E7ECF3;
+      --line2:#D7DEEA;
+      --navy:#102030;       /* se parece al navy del PDF */
+      --purple:#4E38C8;     /* acento morado */
+      --purple2:#6A57F5;
+      --softPurple:#F3F1FF;
+      --softBlue:#EDF2FF;
+      --good:#168A5B;
+      --warn:#C68300;
+      --bad:#B42318;
+      --shadow: 0 10px 30px rgba(16,32,48,.10);
+      --r:14px;
     }
-    </script>
-<link rel="stylesheet" href="/index.css">
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:#F4F6FA;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .sheet{
+      width: 210mm;
+      min-height: 297mm;
+      margin: 18px auto;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      border:1px solid #EEF2F7;
+    }
+
+    /* Header */
+    .topband{
+      background: linear-gradient(90deg, var(--navy), #122B40);
+      color:#fff;
+      padding: 18px 22px 14px;
+      position:relative;
+      overflow:hidden;
+    }
+    .topband:after{
+      content:"";
+      position:absolute;
+      inset:-50px -40px auto auto;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle at 30% 30%, rgba(106,87,245,.55), transparent 60%);
+      transform: rotate(18deg);
+      pointer-events:none;
+      opacity:.9;
+    }
+    .toprow{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      position:relative;
+      z-index:1;
+    }
+    .kicker{
+      font-size:11px;
+      letter-spacing:.22em;
+      font-weight:800;
+      opacity:.85;
+      text-transform:uppercase;
+      margin:0 0 6px 0;
+    }
+    .cargo{
+      margin:0;
+      font-size:26px;
+      font-weight:900;
+      letter-spacing:.2px;
+      line-height:1.15;
+    }
+    .metaRight{
+      text-align:right;
+      font-size:12px;
+      opacity:.92;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 210px;
+    }
+    .pill{
+      display:inline-flex;
+      justify-content:flex-end;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.22);
+      background: rgba(255,255,255,.08);
+      width: fit-content;
+      margin-left:auto;
+      backdrop-filter: blur(6px);
+    }
+    .pill b{font-weight:900}
+    .subline{
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid rgba(255,255,255,.18);
+      font-size:12px;
+      opacity:.88;
+      position:relative;
+      z-index:1;
+    }
+
+    /* Content */
+    .content{padding: 18px 22px 20px}
+    .sectionTitle{
+      display:flex; align-items:center; gap:10px;
+      margin: 12px 0 10px;
+      font-weight:900;
+      letter-spacing:.02em;
+      color: var(--ink);
+    }
+    .badgeN{
+      width:26px; height:26px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background: var(--softBlue);
+      border:1px solid var(--line);
+      color: var(--purple);
+      font-weight:900;
+      font-size:12px;
+    }
+
+    .grid3{
+      display:grid;
+      grid-template-columns: 1fr 1.3fr .9fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      background:#fff;
+      overflow:hidden;
+    }
+    .cardHead{
+      padding: 12px 12px 10px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, #FBFCFF, #FFFFFF);
+      display:flex; justify-content:space-between; align-items:center; gap:10px;
+    }
+    .cardHead h3{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:900;
+      color:#22324A;
+    }
+    .chip{
+      font-size:11px;
+      padding: 5px 9px;
+      border-radius:999px;
+      background: var(--softPurple);
+      border:1px solid #E6E1FF;
+      color:#3A2FB0;
+      font-weight:900;
+      white-space:nowrap;
+    }
+    .cardBody{padding:12px}
+
+    /* KPI */
+    .kpiRow{display:flex; justify-content:space-between; align-items:flex-end; gap:12px}
+    .kpiBig{font-size:34px; font-weight:1000; letter-spacing:.3px; margin:0}
+    .kpiSmall{margin:0; font-size:12px; color:var(--muted)}
+    .modelPill{
+      margin-top:10px;
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: #F9FAFF;
+      font-weight:1000;
+      color:#1E2B42;
+      text-align:center;
+    }
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background:#EEF2FA;
+      overflow:hidden;
+      border:1px solid var(--line);
+      margin-top:10px;
+    }
+    .fill{height:100%; width:0%; background: linear-gradient(90deg, var(--purple), var(--purple2));}
+
+    /* Bars */
+    .bars{display:flex; flex-direction:column; gap:10px}
+    .barItem{display:grid; grid-template-columns: 42px 1fr; gap:10px; align-items:center}
+    .barPct{font-weight:1000; color:#2E3B57; font-size:12px}
+    .barName{
+      font-size:12px;
+      color:#2E3B57;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .track{
+      grid-column: 1 / -1;
+      height:10px; border-radius:999px;
+      background:#EEF2FA;
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-left:52px;
+      margin-top:-6px;
+    }
+    .track .tfill{height:100%; width:0%; background: linear-gradient(90deg, rgba(78,56,200,.9), rgba(106,87,245,.7));}
+
+    /* Model table */
+    .mt{display:flex; flex-direction:column; gap:8px}
+    .mtRow{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .mtRow.active{
+      border-color:#CFC8FF;
+      background: var(--softPurple);
+    }
+    .mtName{font-weight:1000; font-size:12px}
+    .mtRange{font-size:12px; color:var(--muted); white-space:nowrap}
+
+    /* Matrix table */
+    .tableWrap{
+      margin-top: 12px;
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      overflow:hidden;
+      background:#fff;
+    }
+    table{width:100%; border-collapse:collapse; font-size:12px}
+    thead th{
+      text-align:left;
+      padding:10px 10px;
+      background:#F7F9FD;
+      border-bottom:1px solid var(--line);
+      color:#23314B;
+      font-weight:1000;
+    }
+    tbody td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      color:#1A2740;
+      vertical-align:top;
+    }
+    tbody tr:last-child td{border-bottom:none}
+    .dimSub{display:block; margin-top:3px; font-weight:800; color:var(--muted); font-size:11px}
+    .funcText{color:#1A2740}
+    .mutedNote{color:var(--muted); font-size:12px; margin-top:8px}
+
+    /* Inputs (editables) */
+    select, input, textarea{
+      font:inherit;
+      width:100%;
+      border-radius:10px;
+      border: 1px solid var(--line2);
+      padding:8px 10px;
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+    input[type="number"]{max-width:92px; text-align:center; font-weight:1000}
+    .actions{display:flex; gap:8px; justify-content:flex-end}
+    .iconbtn{
+      border:1px solid var(--line2);
+      background:#fff;
+      border-radius:10px;
+      padding:7px 10px;
+      cursor:pointer;
+      font-weight:1000;
+      color:#2A3854;
+    }
+    .iconbtn:hover{background:#F7F9FF}
+
+    /* Small "source" card */
+    .sourceBox{
+      border:1px dashed #D7DEEA;
+      background:#FAFBFF;
+      border-radius: var(--r);
+      padding: 12px;
+      margin-top:12px;
+    }
+    .sourceRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .sourceRow > *{flex:1}
+    button.main{
+      background: linear-gradient(90deg, var(--purple), var(--purple2));
+      border:1px solid #B9B2FF;
+      color:#fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight:1000;
+    }
+    button.secondary{
+      background:#fff;
+      border:1px solid var(--line2);
+      color:#2A3854;
+      border-radius:10px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:1000;
+    }
+
+    /* Print */
+    @media print{
+      body{background:#fff}
+      .sheet{box-shadow:none; margin:0; border:none}
+      .sourceBox{display:none}
+    }
+  </style>
 </head>
-  <body class="bg-gray-50 text-slate-800">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+<body>
+  <div class="sheet">
+    <div class="topband">
+      <div class="toprow">
+        <div>
+          <p class="kicker">REPORTE DE FACTIBILIDAD</p>
+          <h1 class="cargo" id="cargoTitle">Cargo —</h1>
+        </div>
+        <div class="metaRight">
+          <div class="pill"><b>Fecha</b> <span id="issueDate">—</span></div>
+          <div class="pill"><b>Pesos</b> 60% / 20% / 20%</div>
+        </div>
+      </div>
+      <div class="subline">
+        El índice global se construye desde la tabla <b>“Principales Resultados”</b> (columna <b>Acciones</b> + <b>% Importancia</b>).
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- SOURCES -->
+      <div class="sourceBox">
+        <div class="sourceRow">
+          <input id="file" type="file" accept=".docx"/>
+          <button class="main" id="parseBtn">Cargar “Principales Resultados”</button>
+          <button class="secondary" id="clearBtn">Limpiar</button>
+        </div>
+        <div style="margin-top:10px">
+          <textarea id="rawText" placeholder="Opcional: pega aquí SOLO el fragmento de la tabla (N°, % Importancia, Acciones...) si no usarás .docx." style="min-height:72px"></textarea>
+          <div class="mutedNote">Tip: si el Word viene “raro”, pega solo el bloque de la tabla y listo.</div>
+        </div>
+      </div>
+
+      <!-- SECTION 1 -->
+      <div class="sectionTitle">
+        <div class="badgeN">1</div>
+        <div>Resultado Ejecutivo</div>
+      </div>
+
+      <div class="grid3">
+
+        <!-- Global KPI -->
+        <div class="card">
+          <div class="cardHead">
+            <h3>ÍNDICE GLOBAL</h3>
+            <div class="chip" id="globalTag">—</div>
+          </div>
+          <div class="cardBody">
+            <div class="kpiRow">
+              <div>
+                <p class="kpiSmall">Factibilidad</p>
+                <p class="kpiBig" id="globalPct">—</p>
+              </div>
+              <div style="text-align:right">
+                <p class="kpiSmall">Modelo sugerido</p>
+              </div>
+            </div>
+            <div class="bar"><div class="fill" id="globalBar"></div></div>
+            <div class="modelPill" id="modelPill">—</div>
+            <div class="mutedNote" id="globalExplain">Carga funciones para calcular.</div>
+          </div>
+        </div>
+
+        <!-- Detail by function -->
+        <div class="card">
+          <div class="cardHead">
+            <h3>DETALLE POR FUNCIÓN</h3>
+            <div class="chip" id="funcCount">0 funciones</div>
+          </div>
+          <div class="cardBody">
+            <div class="bars" id="bars"></div>
+            <div class="mutedNote">Esta sección muestra la factibilidad de cada función (60/20/20) como indicador visual.</div>
+          </div>
+        </div>
+
+        <!-- Models -->
+        <div class="card">
+          <div class="cardHead">
+            <h3>TABLA DE MODELOS</h3>
+            <div class="chip">por %</div>
+          </div>
+          <div class="cardBody">
+            <div class="mt">
+              <div class="mtRow" data-model="presencial">
+                <div class="mtName">Presencial</div>
+                <div class="mtRange">&lt; 50%</div>
+              </div>
+              <div class="mtRow" data-model="4p1t">
+                <div class="mtName">4 Presencial / 1 Teletrabajo</div>
+                <div class="mtRange">≥ 50% y &lt; 70%</div>
+              </div>
+              <div class="mtRow" data-model="3p2t">
+                <div class="mtName">3 Presencial / 2 Teletrabajo</div>
+                <div class="mtRange">≥ 70% y &lt; 80%</div>
+              </div>
+              <div class="mtRow" data-model="100t">
+                <div class="mtName">100% Teletrabajo</div>
+                <div class="mtRange">≥ 80%</div>
+              </div>
+            </div>
+            <div class="mutedNote">Se resalta el modelo correspondiente al índice global.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SECTION 2 -->
+      <div class="sectionTitle" style="margin-top:18px">
+        <div class="badgeN">2</div>
+        <div>Matriz de Evaluación</div>
+      </div>
+
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:38%">FUNCIÓN DEL CARGO</th>
+              <th style="width:10%">PESO %</th>
+              <th style="width:17%">INTERLOCUCIÓN <span class="dimSub">Peso: 60%</span></th>
+              <th style="width:17%">DOC. EN PAPEL <span class="dimSub">Peso: 20%</span></th>
+              <th style="width:18%">HERRAMIENTAS FÍSICAS <span class="dimSub">Peso: 20%</span></th>
+              <th style="width:10%; text-align:right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="mutedNote" style="text-align:center; margin-top:10px">
+        Selecciona la frecuencia de presencialidad por dimensión. El cálculo se actualiza automáticamente.
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+  <script>
+    (() => {
+      const el = (id) => document.getElementById(id);
+
+      const presenceOptions = [
+        {key:"0",   label:"Nunca (0 días)", rel:1.00},
+        {key:"1",   label:"Casi nunca (1 día)", rel:0.75},
+        {key:"2",   label:"Ocasional (2 días)", rel:0.50},
+        {key:"3-4", label:"Casi todos (3–4 días)", rel:0.25},
+        {key:"5",   label:"Todos (5 días)", rel:0.00},
+      ];
+
+      const W = { inter: 0.60, paper: 0.20, tool: 0.20 };
+      const state = { cargo: "—", funcs: [] };
+      const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
+
+      function nowDDMMYYYY(){
+        const d = new Date();
+        const dd = String(d.getDate()).padStart(2,"0");
+        const mm = String(d.getMonth()+1).padStart(2,"0");
+        const yy = d.getFullYear();
+        return `${dd}-${mm}-${yy}`;
+      }
+
+      function normalizeSpaces(s){
+        return String(s || "").replace(/\u00A0/g," ").replace(/[ \t]+/g," ").trim();
+      }
+
+      async function readDocx(file){
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        return (result.value || "").trim();
+      }
+
+      function pickCargoTitle(text){
+        const t = text.replace(/\r/g,"");
+        const m = t.match(/Título del Cargo\s*\n\s*([^\n]+)/i);
+        return (m && m[1]) ? normalizeSpaces(m[1]) : "—";
+      }
+
+      function slicePrincipalesResultadosBlock(text){
+        const t = text.replace(/\r/g,"");
+        const start = t.search(/Principales Resultados/i);
+        if(start === -1) return t;
+        const after = t.slice(start);
+        const endIdx =
+          after.search(/\n\s*3\.\s*Organización del Cargo/i) !== -1 ? after.search(/\n\s*3\.\s*Organización del Cargo/i) :
+          after.search(/\n\s*3\.\s*/i) !== -1 ? after.search(/\n\s*3\.\s*/i) :
+          after.search(/\n\s*Organización del Cargo/i) !== -1 ? after.search(/\n\s*Organización del Cargo/i) :
+          -1;
+        return endIdx === -1 ? after : after.slice(0, endIdx);
+      }
+
+      function parseRowsFromBlock(blockText){
+        const lines = blockText.split("\n").map(normalizeSpaces).filter(Boolean);
+
+        // buscar header
+        let startIdx = 0;
+        for(let i=0;i<lines.length;i++){
+          const l = lines[i].toLowerCase();
+          if(l.includes("n°") && l.includes("%") && l.includes("importancia") && l.includes("acciones")){
+            startIdx = i + 1;
+            break;
+          }
+        }
+
+        const out = [];
+        const isRowStart = (s) => /^\d{1,2}$/.test(s);
+        const isPercent  = (s) => /^\d{1,3}\s*%$/.test(s);
+
+        let i = startIdx;
+        while(i < lines.length){
+          if(!isRowStart(lines[i])) { i++; continue; }
+          const n = Number(lines[i]);
+          const pctLine = lines[i+1] || "";
+          if(!isPercent(pctLine)){ i++; continue; }
+          const pct = Number(pctLine.replace("%","").trim());
+
+          let j = i + 2;
+          const accionesParts = [];
+          while(j < lines.length && !isRowStart(lines[j])){
+            const low = lines[j].toLowerCase();
+            if(low.includes("resultado final esperado")) break;
+            if(low === "proceso" || low === "macroproceso") break;
+            if(low.startsWith("asegurar ") || low.startsWith("contribuir ") || low.startsWith("proveer ")) break;
+            accionesParts.push(lines[j]);
+            j++;
+          }
+
+          const acciones = normalizeSpaces(accionesParts.join(" "));
+          if(acciones.length >= 8){
+            out.push({ id: uid(), n, pct, weight: 0, text: acciones, inter:"1", paper:"1", tool:"1" });
+          }
+          i = j;
+        }
+
+        // fallback regex
+        if(out.length === 0){
+          const raw = blockText.replace(/\r/g,"");
+          const re = /(\d{1,2})\s*\n\s*(\d{1,3})%\s*\n([\s\S]*?)(?=\n\s*\d{1,2}\s*\n\s*\d{1,3}%|\n\s*3\.\s|\n\s*Organización del Cargo|$)/g;
+          let m;
+          while((m = re.exec(raw))){
+            const n = Number(m[1]), pct = Number(m[2]);
+            const chunk = normalizeSpaces(m[3] || "");
+            const cut = chunk.split(/Resultado Final Esperado/i)[0] || chunk;
+            const acciones = normalizeSpaces(cut.split(/\n/).join(" "));
+            if(acciones.length >= 8){
+              out.push({ id: uid(), n, pct, weight: 0, text: acciones, inter:"1", paper:"1", tool:"1" });
+            }
+          }
+        }
+
+        out.sort((a,b)=>a.n - b.n);
+
+        const sumPct = out.reduce((acc,r)=>acc + (Number(r.pct)||0), 0);
+        if(sumPct > 0){
+          out.forEach(r => r.weight = (Number(r.pct)||0)/sumPct);
+        } else {
+          const wf = out.length ? 1/out.length : 0;
+          out.forEach(r => { r.weight = wf; r.pct = Math.round(wf*100); });
+        }
+        return out;
+      }
+
+      function relFromKey(key){
+        const it = presenceOptions.find(o => o.key === key);
+        return it ? it.rel : 0;
+      }
+
+      function clamp01(x){
+        if(Number.isNaN(x)) return 0;
+        return Math.max(0, Math.min(1, x));
+      }
+
+      function scoreFunc01(f){
+        return (
+          W.inter * relFromKey(f.inter) +
+          W.paper * relFromKey(f.paper) +
+          W.tool  * relFromKey(f.tool)
+        );
+      }
+
+      function computeGlobal(){
+        if(state.funcs.length === 0) return null;
+        let total01 = 0;
+        for(const f of state.funcs){
+          const wf = clamp01(Number(f.weight));
+          total01 += wf * scoreFunc01(f);
+        }
+        const sumW = state.funcs.reduce((acc,f)=>acc + clamp01(Number(f.weight)), 0) || 1;
+        total01 = total01 / sumW;
+        return { score01: total01, score100: Math.round(total01 * 100) };
+      }
+
+      function labelFromScore100(s){
+        if(s >= 70) return {t:"Alta", cls:"good"};
+        if(s >= 50) return {t:"Media", cls:"warn"};
+        return {t:"Baja", cls:"bad"};
+      }
+
+      function recommendModel(score){
+        if(score < 50) return "presencial";
+        if(score < 70) return "4p1t";
+        if(score < 80) return "3p2t";
+        return "100t";
+      }
+
+      function modelLabel(m){
+        return ({
+          presencial:"Presencial",
+          "4p1t":"4 Presencial / 1 Teletrabajo",
+          "3p2t":"3 Presencial / 2 Teletrabajo",
+          "100t":"100% Teletrabajo"
+        })[m] || "—";
+      }
+
+      function escapeHtml(s){
+        return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      }
+
+      function shortTitle(s){
+        const t = normalizeSpaces(s);
+        if(t.length <= 44) return t;
+        return t.slice(0,44).trim() + "…";
+      }
+
+      function renormalizeWeights(){
+        const sum = state.funcs.reduce((acc,r)=>acc + (Number(r.pct)||0), 0) || 1;
+        state.funcs.forEach(r => r.weight = (Number(r.pct)||0)/sum);
+      }
+
+      function setHeader(){
+        el("issueDate").textContent = nowDDMMYYYY();
+        el("cargoTitle").textContent = state.cargo || "Cargo —";
+      }
+
+      function renderModels(activeKey){
+        document.querySelectorAll(".mtRow").forEach(n => n.classList.remove("active"));
+        const a = document.querySelector(`.mtRow[data-model="${activeKey}"]`);
+        if(a) a.classList.add("active");
+      }
+
+      function renderBars(){
+        const box = el("bars");
+        box.innerHTML = "";
+        state.funcs.forEach(f => {
+          const pct = Math.round(scoreFunc01(f)*100);
+          const row = document.createElement("div");
+          row.className = "barItem";
+          row.innerHTML = `
+            <div class="barPct">${pct}%</div>
+            <div class="barName" title="${escapeHtml(f.text)}">${escapeHtml(shortTitle(f.text))}</div>
+            <div class="track"><div class="tfill" style="width:${pct}%"></div></div>
+          `;
+          box.appendChild(row);
+        });
+      }
+
+      function presenceSelect(k, id, selected){
+        return `
+          <select data-k="${k}" data-id="${id}">
+            ${presenceOptions.map(o => `<option value="${o.key}" ${o.key===selected ? "selected":""}>${o.label}</option>`).join("")}
+          </select>
+        `;
+      }
+
+      function renderTable(){
+        const tb = el("tbody");
+        tb.innerHTML = "";
+        state.funcs.forEach(f => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="funcText">${escapeHtml(f.text)}</td>
+            <td><input data-k="pct" data-id="${f.id}" type="number" min="0" max="100" step="1" value="${f.pct}"/></td>
+            <td>${presenceSelect("inter", f.id, f.inter)}</td>
+            <td>${presenceSelect("paper", f.id, f.paper)}</td>
+            <td>${presenceSelect("tool", f.id, f.tool)}</td>
+            <td style="text-align:right">
+              <div class="actions">
+                <button class="iconbtn" data-act="up" data-id="${f.id}">↑</button>
+                <button class="iconbtn" data-act="down" data-id="${f.id}">↓</button>
+                <button class="iconbtn" data-act="del" data-id="${f.id}">×</button>
+              </div>
+            </td>
+          `;
+          tb.appendChild(tr);
+        });
+
+        // listeners
+        tb.querySelectorAll("select,input").forEach(n => {
+          n.addEventListener("input", () => {
+            const id = n.getAttribute("data-id");
+            const k = n.getAttribute("data-k");
+            const fx = state.funcs.find(x => x.id === id);
+            if(!fx) return;
+
+            if(k === "pct"){
+              fx.pct = Math.max(0, Math.min(100, Number(n.value)||0));
+              renormalizeWeights();
+            } else {
+              fx[k] = n.value;
+            }
+            renderAll();
+          });
+        });
+
+        tb.querySelectorAll("button[data-act]").forEach(b => {
+          b.addEventListener("click", () => {
+            const act = b.getAttribute("data-act");
+            const id  = b.getAttribute("data-id");
+            if(act === "del") state.funcs = state.funcs.filter(x => x.id !== id);
+            if(act === "up") move(id, -1);
+            if(act === "down") move(id, 1);
+            renormalizeWeights();
+            renderAll();
+          });
+        });
+      }
+
+      function move(id, dir){
+        const i = state.funcs.findIndex(f => f.id === id);
+        const j = i + dir;
+        if(i < 0 || j < 0 || j >= state.funcs.length) return;
+        const t = state.funcs[i];
+        state.funcs[i] = state.funcs[j];
+        state.funcs[j] = t;
+      }
+
+      function renderExecutive(glob){
+        if(!glob){
+          el("globalPct").textContent = "—";
+          el("globalTag").textContent = "—";
+          el("globalBar").style.width = "0%";
+          el("modelPill").textContent = "—";
+          el("globalExplain").textContent = "Carga funciones para calcular.";
+          el("funcCount").textContent = "0 funciones";
+          renderModels(null);
+          el("bars").innerHTML = "";
+          return;
+        }
+
+        const tag = labelFromScore100(glob.score100);
+        el("globalPct").textContent = `${glob.score100}%`;
+        el("globalTag").textContent = `Factibilidad ${tag.t}`;
+        el("funcCount").textContent = `${state.funcs.length} funciones`;
+
+        el("globalBar").style.width = `${glob.score100}%`;
+        el("globalBar").style.background =
+          tag.cls === "good" ? "linear-gradient(90deg, #2CCB74, #6A57F5)" :
+          tag.cls === "warn" ? "linear-gradient(90deg, #FBBF24, #6A57F5)" :
+                              "linear-gradient(90deg, #FB7185, #6A57F5)";
+
+        const modelKey = recommendModel(glob.score100);
+        el("modelPill").textContent = modelLabel(modelKey);
+        renderModels(modelKey);
+
+        el("globalExplain").textContent = "Índice ponderado por “% Importancia” del cargo.";
+        renderBars();
+      }
+
+      function renderAll(){
+        setHeader();
+        renderExecutive(computeGlobal());
+        renderTable();
+      }
+
+      function resetAll(){
+        state.cargo = "—";
+        state.funcs = [];
+        el("rawText").value = "";
+        el("file").value = "";
+        renderAll();
+      }
+
+      el("clearBtn").addEventListener("click", resetAll);
+
+      el("parseBtn").addEventListener("click", async () => {
+        let text = normalizeSpaces(el("rawText").value || "");
+        const f = el("file").files && el("file").files[0];
+
+        if(f){
+          if(!f.name.toLowerCase().endsWith(".docx")){
+            alert("Solo .docx (no .doc). Convierte el archivo a .docx y vuelve a intentar.");
+            return;
+          }
+          try{
+            text = await readDocx(f);
+            el("rawText").value = text;
+          }catch(err){
+            console.error(err);
+            alert("No pude leer el .docx. Prueba pegando el fragmento de la tabla manualmente.");
+            return;
+          }
+        }
+
+        state.cargo = pickCargoTitle(text) || "—";
+        const block = slicePrincipalesResultadosBlock(text);
+        const rows = parseRowsFromBlock(block);
+        state.funcs = rows.length ? rows : parseRowsFromBlock(text);
+
+        if(state.funcs.length === 0){
+          state.funcs = [{ id: uid(), n: 1, pct: 100, weight: 1, text:"Función 1 (edita)", inter:"1", paper:"1", tool:"1" }];
+        }
+
+        renormalizeWeights();
+        renderAll();
+      });
+
+      // boot
+      el("issueDate").textContent = nowDDMMYYYY();
+      renderAll();
+    })();
+  </script>
+</body>
 </html>
