@@ -3,125 +3,448 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Reporte · Factibilidad de Teletrabajo</title>
+  <title>Calculadora · Factibilidad de Teletrabajo</title>
+
   <style>
     :root{
-      --ink:#0E1726; --muted:#5B677A; --paper:#fff;
+      --ink:#0E1726; --muted:#5B677A; --paper:#ffffff;
       --line:#E7ECF3; --line2:#D7DEEA;
       --navy:#102030; --purple:#4E38C8; --purple2:#6A57F5;
       --softPurple:#F3F1FF; --softBlue:#EDF2FF;
       --shadow: 0 10px 30px rgba(16,32,48,.10);
       --r:14px;
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink);background:#F4F6FA}
-    .sheet{width:210mm;min-height:297mm;margin:18px auto;background:var(--paper);box-shadow:var(--shadow);border:1px solid #EEF2F7}
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:#F4F6FA;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .sheet{
+      width: 210mm;
+      min-height: 297mm;
+      margin: 18px auto;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      border:1px solid #EEF2F7;
+    }
+    @media(max-width:980px){
+      .sheet{ width:auto; margin:0; min-height:auto; border:none; box-shadow:none; }
+    }
+
+    /* ===== Header ===== */
     .topband{
-      background:linear-gradient(90deg,var(--navy),#122B40);
-      color:#fff;padding:18px 22px 14px;position:relative;overflow:hidden
+      background: linear-gradient(90deg, var(--navy), #122B40);
+      color:#fff;
+      padding: 18px 22px 16px;
+      position:relative;
+      overflow:hidden;
     }
     .topband:after{
-      content:"";position:absolute;inset:-50px -40px auto auto;width:340px;height:340px;
-      background:radial-gradient(circle at 30% 30%, rgba(106,87,245,.55), transparent 60%);
-      transform:rotate(18deg);pointer-events:none;opacity:.9
+      content:"";
+      position:absolute;
+      inset:-60px -50px auto auto;
+      width:360px;
+      height:360px;
+      background: radial-gradient(circle at 30% 30%, rgba(106,87,245,.55), transparent 60%);
+      transform: rotate(18deg);
+      pointer-events:none;
+      opacity:.9;
     }
-    .toprow{display:flex;justify-content:space-between;gap:14px;position:relative;z-index:1;flex-wrap:wrap}
-    .kicker{font-size:11px;letter-spacing:.22em;font-weight:800;opacity:.85;text-transform:uppercase;margin:0 0 6px 0}
-    .cargo{margin:0;font-size:26px;font-weight:900;letter-spacing:.2px;line-height:1.15}
-    .metaRight{text-align:right;font-size:12px;opacity:.92;display:flex;flex-direction:column;gap:6px;min-width:210px}
-    .pill{display:inline-flex;justify-content:flex-end;gap:8px;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);width:fit-content;margin-left:auto}
-    .pill b{font-weight:900}
-    .subline{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18);font-size:12px;opacity:.88;position:relative;z-index:1}
-    .content{padding:18px 22px 20px}
-    .sectionTitle{display:flex;align-items:center;gap:10px;margin:12px 0 10px;font-weight:900;letter-spacing:.02em}
-    .badgeN{width:26px;height:26px;border-radius:10px;display:grid;place-items:center;background:var(--softBlue);border:1px solid var(--line);color:var(--purple);font-weight:900;font-size:12px}
-    .grid3{display:grid;grid-template-columns:1fr 1.3fr .9fr;gap:12px;margin-top:10px}
-    @media(max-width:980px){.sheet{width:auto;margin:0;min-height:auto} .grid3{grid-template-columns:1fr}}
-    .card{border:1px solid var(--line);border-radius:var(--r);background:#fff;overflow:hidden}
-    .cardHead{padding:12px 12px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#FBFCFF,#fff);display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .cardHead h3{margin:0;font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:#22324A}
-    .chip{font-size:11px;padding:5px 9px;border-radius:999px;background:var(--softPurple);border:1px solid #E6E1FF;color:#3A2FB0;font-weight:900;white-space:nowrap}
-    .cardBody{padding:12px}
-    .kpiRow{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
-    .kpiBig{font-size:34px;font-weight:1000;letter-spacing:.3px;margin:0}
-    .kpiSmall{margin:0;font-size:12px;color:var(--muted)}
-    .modelPill{margin-top:10px;width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:#F9FAFF;font-weight:1000;text-align:center}
-    .bar{height:10px;border-radius:999px;background:#EEF2FA;overflow:hidden;border:1px solid var(--line);margin-top:10px}
-    .fill{height:100%;width:0%;background:linear-gradient(90deg,var(--purple),var(--purple2))}
-    .mutedNote{color:var(--muted);font-size:12px;margin-top:8px}
-    .bars{display:flex;flex-direction:column;gap:10px}
-    .barItem{display:grid;grid-template-columns:42px 1fr;gap:10px;align-items:center}
-    .barPct{font-weight:1000;color:#2E3B57;font-size:12px}
-    .barName{font-size:12px;color:#2E3B57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .track{grid-column:1/-1;height:10px;border-radius:999px;background:#EEF2FA;border:1px solid var(--line);overflow:hidden;margin-left:52px;margin-top:-6px}
-    .track .tfill{height:100%;width:0%;background:linear-gradient(90deg, rgba(78,56,200,.9), rgba(106,87,245,.7))}
-    .mt{display:flex;flex-direction:column;gap:8px}
-    .mtRow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px;border-radius:12px;border:1px solid var(--line);background:#fff}
-    .mtRow.active{border-color:#CFC8FF;background:var(--softPurple)}
-    .mtName{font-weight:1000;font-size:12px}
-    .mtRange{font-size:12px;color:var(--muted);white-space:nowrap}
-    .tableWrap{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#fff}
-    table{width:100%;border-collapse:collapse;font-size:12px}
-    thead th{text-align:left;padding:10px;background:#F7F9FD;border-bottom:1px solid var(--line);color:#23314B;font-weight:1000}
-    tbody td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
-    tbody tr:last-child td{border-bottom:none}
-    .dimSub{display:block;margin-top:3px;font-weight:800;color:var(--muted);font-size:11px}
-    select,input,textarea{font:inherit;width:100%;border-radius:10px;border:1px solid var(--line2);padding:8px 10px;background:#fff;color:var(--ink);outline:none}
-    input[type="number"]{max-width:92px;text-align:center;font-weight:1000}
-    .actions{display:flex;gap:8px;justify-content:flex-end}
-    .iconbtn{border:1px solid var(--line2);background:#fff;border-radius:10px;padding:7px 10px;cursor:pointer;font-weight:1000}
-    .sourceBox{border:1px dashed #D7DEEA;background:#FAFBFF;border-radius:var(--r);padding:12px;margin-top:12px}
-    .sourceRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .sourceRow > *{flex:1}
-    button.main{background:linear-gradient(90deg,var(--purple),var(--purple2));border:1px solid #B9B2FF;color:#fff;border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:1000}
-    button.secondary{background:#fff;border:1px solid var(--line2);color:#2A3854;border-radius:10px;padding:10px 12px;cursor:pointer;font-weight:1000}
-    .alert{margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid #F2C2C8;background:#FFF1F3;color:#7A0F21;font-weight:900;display:none}
-    @media print{body{background:#fff}.sheet{box-shadow:none;margin:0;border:none}.sourceBox{display:none}}
+    .toprow{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      position:relative;
+      z-index:1;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+    .kicker{
+      font-size:11px;
+      letter-spacing:.22em;
+      font-weight:900;
+      opacity:.88;
+      text-transform:uppercase;
+      margin:0 0 6px 0;
+    }
+    .cargo{
+      margin:0;
+      font-size:28px;
+      font-weight:1000;
+      letter-spacing:.2px;
+      line-height:1.12;
+    }
+    .metaRight{
+      text-align:right;
+      font-size:12px;
+      opacity:.95;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-width:180px;
+      align-items:flex-end;
+    }
+    .pill{
+      display:inline-flex;
+      justify-content:flex-end;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.22);
+      background:rgba(255,255,255,.08);
+      width:fit-content;
+      margin-left:auto;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .pill b{ font-weight:1000; }
+
+    .subline{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.18);
+      font-size:13px;
+      opacity:.92;
+      position:relative;
+      z-index:1;
+      line-height:1.35;
+      white-space:pre-line; /* respeta saltos */
+    }
+
+    /* ===== Content ===== */
+    .content{ padding: 18px 22px 20px; }
+    .sectionTitle{
+      display:flex; align-items:center; gap:10px;
+      margin: 12px 0 10px;
+      font-weight:1000;
+      letter-spacing:.01em;
+      color: var(--ink);
+    }
+    .badgeN{
+      width:26px; height:26px;
+      border-radius:10px;
+      display:grid;
+      place-items:center;
+      background: var(--softBlue);
+      border:1px solid var(--line);
+      color: var(--purple);
+      font-weight:1000;
+      font-size:12px;
+      flex:0 0 auto;
+    }
+
+    .sourceBox{
+      border:1px dashed #D7DEEA;
+      background:#FAFBFF;
+      border-radius: var(--r);
+      padding: 12px;
+      margin-top:12px;
+    }
+    .sourceRow{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .sourceRow > *{ flex: 1; }
+    textarea{
+      width:100%;
+      min-height:72px;
+      resize:vertical;
+      font:inherit;
+      border-radius:10px;
+      border: 1px solid var(--line2);
+      padding:8px 10px;
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+
+    button.main{
+      background: linear-gradient(90deg, var(--purple), var(--purple2));
+      border:1px solid #B9B2FF;
+      color:#fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight:1000;
+    }
+    button.secondary{
+      background:#fff;
+      border:1px solid var(--line2);
+      color:#2A3854;
+      border-radius:10px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:1000;
+    }
+
+    /* Cards */
+    .grid3{
+      display:grid;
+      grid-template-columns: 1fr 1.3fr .9fr;
+      gap:12px;
+      margin-top:10px;
+    }
+    @media(max-width:980px){
+      .grid3{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      background:#fff;
+      overflow:hidden;
+    }
+    .cardHead{
+      padding: 12px 12px 10px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, #FBFCFF, #FFFFFF);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .cardHead h3{
+      margin:0;
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:1000;
+      color:#22324A;
+    }
+    .chip{
+      font-size:11px;
+      padding: 5px 9px;
+      border-radius:999px;
+      background: var(--softPurple);
+      border:1px solid #E6E1FF;
+      color:#3A2FB0;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+    .cardBody{ padding:12px; }
+
+    .kpiRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:12px;
+    }
+    .kpiBig{
+      font-size:34px;
+      font-weight:1000;
+      letter-spacing:.3px;
+      margin:0;
+    }
+    .kpiSmall{
+      margin:0;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background:#EEF2FA;
+      overflow:hidden;
+      border:1px solid var(--line);
+      margin-top:10px;
+    }
+    .fill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--purple), var(--purple2));
+    }
+    .modelPill{
+      margin-top:10px;
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: #F9FAFF;
+      font-weight:1000;
+      text-align:center;
+    }
+    .mutedNote{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:8px;
+    }
+
+    /* Bars */
+    .bars{ display:flex; flex-direction:column; gap:10px; }
+    .barItem{ display:grid; grid-template-columns: 42px 1fr; gap:10px; align-items:center; }
+    .barPct{ font-weight:1000; color:#2E3B57; font-size:12px; }
+    .barName{
+      font-size:12px;
+      color:#2E3B57;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .track{
+      grid-column: 1 / -1;
+      height:10px;
+      border-radius:999px;
+      background:#EEF2FA;
+      border:1px solid var(--line);
+      overflow:hidden;
+      margin-left:52px;
+      margin-top:-6px;
+    }
+    .track .tfill{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(78,56,200,.9), rgba(106,87,245,.7));
+    }
+
+    /* Models */
+    .mt{ display:flex; flex-direction:column; gap:8px; }
+    .mtRow{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+    }
+    .mtRow.active{
+      border-color:#CFC8FF;
+      background: var(--softPurple);
+    }
+    .mtName{ font-weight:1000; font-size:12px; }
+    .mtRange{ font-size:12px; color:var(--muted); white-space:nowrap; }
+
+    /* Table */
+    .tableWrap{
+      margin-top: 12px;
+      border:1px solid var(--line);
+      border-radius: var(--r);
+      overflow:hidden;
+      background:#fff;
+    }
+    table{ width:100%; border-collapse:collapse; font-size:12px; }
+    thead th{
+      text-align:left;
+      padding:10px 10px;
+      background:#F7F9FD;
+      border-bottom:1px solid var(--line);
+      color:#23314B;
+      font-weight:1000;
+    }
+    tbody td{
+      padding:10px 10px;
+      border-bottom:1px solid var(--line);
+      color:#1A2740;
+      vertical-align:top;
+    }
+    tbody tr:last-child td{ border-bottom:none; }
+    .dimSub{
+      display:block;
+      margin-top:3px;
+      font-weight:800;
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    select, input{
+      font:inherit;
+      width:100%;
+      border-radius:10px;
+      border: 1px solid var(--line2);
+      padding:8px 10px;
+      background:#fff;
+      color:var(--ink);
+      outline:none;
+    }
+    /* Peso más visible */
+    input[type="number"]{
+      max-width:110px;
+      text-align:center;
+      font-weight:1000;
+      padding:9px 10px;
+      border-radius:12px;
+    }
+    .actions{ display:flex; gap:8px; justify-content:flex-end }
+    .iconbtn{
+      border:1px solid var(--line2);
+      background:#fff;
+      border-radius:10px;
+      padding:7px 10px;
+      cursor:pointer;
+      font-weight:1000;
+      color:#2A3854;
+    }
+    .iconbtn:hover{ background:#F7F9FF; }
+
+    /* Print */
+    @media print{
+      body{ background:#fff; }
+      .sheet{ box-shadow:none; margin:0; border:none; }
+      .sourceBox{ display:none; }
+      #pdfBtn{ display:none; }
+    }
   </style>
 </head>
+
 <body>
   <div class="sheet">
     <div class="topband">
       <div class="toprow">
         <div>
           <p class="kicker">REPORTE DE FACTIBILIDAD</p>
-          <h1 class="cargo" id="cargoTitle">BIM Manager</h1>
+          <h1 class="cargo" id="cargoTitle">Cargo —</h1>
         </div>
+
         <div class="metaRight">
           <div class="pill"><b>Fecha</b> <span id="issueDate">—</span></div>
-          <div class="pill"><b>Pesos</b> 60% / 20% / 20%</div>
+
+          <!-- ✅ Botón PDF -->
+          <button id="pdfBtn" type="button" class="pill" style="cursor:pointer">
+            <b>Descargar</b> PDF
+          </button>
         </div>
       </div>
-      <div class="subline">
-        El índice global se construye desde la tabla <b>“Principales Resultados”</b> (columna <b>Acciones</b> + <b>% Importancia</b>).
-      </div>
+
+      <div class="subline" id="sublineText">Evalúa la Factibilidad de Teletrabajar del cargo
+Sube la descripción de cargo y nuestra IA desglosará las funciones, asignará pesos de importancia y calculará la viabilidad del teletrabajo.</div>
     </div>
 
     <div class="content">
 
+      <!-- INPUT -->
       <div class="sourceBox">
         <div class="sourceRow">
           <input id="file" type="file" accept=".docx"/>
-          <button class="main" id="parseBtn">Cargar “Principales Resultados”</button>
-          <button class="secondary" id="clearBtn">Limpiar</button>
+          <button class="main" id="parseBtn" type="button">Cargar “Principales Resultados”</button>
+          <button class="secondary" id="clearBtn" type="button">Limpiar</button>
         </div>
+
         <div style="margin-top:10px">
           <textarea id="rawText" placeholder="Opcional: pega aquí SOLO el fragmento de la tabla (N°, % Importancia, Acciones...)"></textarea>
-          <div class="alert" id="alertBox">Error: no se pudo cargar la librería Mammoth (necesitas internet o permitir scripts externos).</div>
-          <div class="mutedNote">Si no cargas nada, verás un ejemplo (demo) para confirmar que la vista funciona.</div>
+          <div class="mutedNote">Tip: si el Word viene “raro”, pega solo el bloque de la tabla y listo.</div>
         </div>
       </div>
 
+      <!-- SECTION 1 -->
       <div class="sectionTitle">
         <div class="badgeN">1</div>
         <div>Resultado Ejecutivo</div>
       </div>
 
       <div class="grid3">
+        <!-- Global KPI -->
         <div class="card">
           <div class="cardHead">
             <h3>ÍNDICE GLOBAL</h3>
-            <div class="chip" id="globalTag">Factibilidad Media</div>
+            <div class="chip" id="globalTag">—</div>
           </div>
           <div class="cardBody">
             <div class="kpiRow">
@@ -135,14 +458,15 @@
             </div>
             <div class="bar"><div class="fill" id="globalBar"></div></div>
             <div class="modelPill" id="modelPill">—</div>
-            <div class="mutedNote" id="globalExplain">—</div>
+            <div class="mutedNote" id="globalExplain">Carga funciones para calcular.</div>
           </div>
         </div>
 
+        <!-- Detail by function -->
         <div class="card">
           <div class="cardHead">
             <h3>DETALLE POR FUNCIÓN</h3>
-            <div class="chip" id="funcCount">—</div>
+            <div class="chip" id="funcCount">0 funciones</div>
           </div>
           <div class="cardBody">
             <div class="bars" id="bars"></div>
@@ -150,6 +474,7 @@
           </div>
         </div>
 
+        <!-- Models -->
         <div class="card">
           <div class="cardHead">
             <h3>TABLA DE MODELOS</h3>
@@ -157,16 +482,29 @@
           </div>
           <div class="cardBody">
             <div class="mt">
-              <div class="mtRow" data-model="presencial"><div class="mtName">Presencial</div><div class="mtRange">&lt; 50%</div></div>
-              <div class="mtRow" data-model="4p1t"><div class="mtName">4 Presencial / 1 Teletrabajo</div><div class="mtRange">≥ 50% y &lt; 70%</div></div>
-              <div class="mtRow" data-model="3p2t"><div class="mtName">3 Presencial / 2 Teletrabajo</div><div class="mtRange">≥ 70% y &lt; 80%</div></div>
-              <div class="mtRow" data-model="100t"><div class="mtName">100% Teletrabajo</div><div class="mtRange">≥ 80%</div></div>
+              <div class="mtRow" data-model="presencial">
+                <div class="mtName">Presencial</div>
+                <div class="mtRange">&lt; 50%</div>
+              </div>
+              <div class="mtRow" data-model="4p1t">
+                <div class="mtName">4 Presencial / 1 Teletrabajo</div>
+                <div class="mtRange">≥ 50% y &lt; 70%</div>
+              </div>
+              <div class="mtRow" data-model="3p2t">
+                <div class="mtName">3 Presencial / 2 Teletrabajo</div>
+                <div class="mtRange">≥ 70% y &lt; 80%</div>
+              </div>
+              <div class="mtRow" data-model="100t">
+                <div class="mtName">100% Teletrabajo</div>
+                <div class="mtRange">≥ 80%</div>
+              </div>
             </div>
             <div class="mutedNote">Se resalta el modelo correspondiente.</div>
           </div>
         </div>
       </div>
 
+      <!-- SECTION 2 -->
       <div class="sectionTitle" style="margin-top:18px">
         <div class="badgeN">2</div>
         <div>Matriz de Evaluación</div>
@@ -191,12 +529,12 @@
       <div class="mutedNote" style="text-align:center; margin-top:10px">
         Selecciona la frecuencia. El cálculo se actualiza automáticamente.
       </div>
-
     </div>
   </div>
 
-  <!-- Mammoth (DOCX -> text). Si no carga, igual verás la demo. -->
+  <!-- DOCX parser -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
+
   <script>
     (() => {
       const el = (id) => document.getElementById(id);
@@ -208,39 +546,28 @@
         {key:"3-4", label:"Casi todos (3–4 días)", rel:0.25},
         {key:"5",   label:"Todos (5 días)", rel:0.00},
       ];
-
       const W = { inter: 0.60, paper: 0.20, tool: 0.20 };
 
-      const demoFuncs = [
-        { text:"Programar y conducir la estrategia y estándares BIM mediante comités interáreas...", pct:20 },
-        { text:"Estructurar y operacionalizar las plantillas y recursos BIM de uso transversal...", pct:15 },
-        { text:"Supervisar y revisar el modelado BIM en todas sus etapas del ciclo de vida...", pct:15 },
-        { text:"Conducir integración temprana de especialidades, coordinación con arquitectura y construcción...", pct:12 },
-        { text:"Evaluar y auditar la calidad de los modelos BIM con herramientas (Solibri u otras)...", pct:10 },
-        { text:"Integrar datos BIM con plataformas de planificación, costos y control...", pct:10 },
-        { text:"Consolidación de modelos As-Built para documentación final de proyectos...", pct:10 },
-        { text:"Supervisar y asignar responsabilidades a roles BIM, uso eficiente de software y estándares...", pct:8 },
-      ];
-
-      const state = { cargo:"BIM Manager", funcs: [] };
+      const state = { cargo: "—", funcs: [] };
       const uid = () => (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2));
 
       function nowDDMMYYYY(){
         const d = new Date();
-        return String(d.getDate()).padStart(2,"0") + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + d.getFullYear();
+        const dd = String(d.getDate()).padStart(2,"0");
+        const mm = String(d.getMonth()+1).padStart(2,"0");
+        const yy = d.getFullYear();
+        return `${dd}-${mm}-${yy}`;
       }
       function normalizeSpaces(s){
         return String(s || "").replace(/\u00A0/g," ").replace(/[ \t]+/g," ").trim();
       }
-
-      function setAlert(show){
-        el("alertBox").style.display = show ? "block" : "none";
+      function escapeHtml(s){
+        return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
       }
 
       async function readDocx(file){
         if(typeof mammoth === "undefined"){
-          setAlert(true);
-          throw new Error("Mammoth no cargó");
+          throw new Error("Mammoth no cargó (revisa conexión / bloqueadores).");
         }
         const arrayBuffer = await file.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer });
@@ -250,7 +577,7 @@
       function pickCargoTitle(text){
         const t = text.replace(/\r/g,"");
         const m = t.match(/Título del Cargo\s*\n\s*([^\n]+)/i);
-        return (m && m[1]) ? normalizeSpaces(m[1]) : state.cargo;
+        return (m && m[1]) ? normalizeSpaces(m[1]) : "—";
       }
 
       function slicePrincipalesResultadosBlock(text){
@@ -285,7 +612,6 @@
         let i = startIdx;
         while(i < lines.length){
           if(!isRowStart(lines[i])) { i++; continue; }
-          const n = Number(lines[i]);
           const pctLine = lines[i+1] || "";
           if(!isPercent(pctLine)){ i++; continue; }
           const pct = Number(pctLine.replace("%","").trim());
@@ -297,28 +623,19 @@
             if(low.includes("resultado final esperado")) break;
             if(low === "proceso" || low === "macroproceso") break;
             if(low.startsWith("asegurar ") || low.startsWith("contribuir ") || low.startsWith("proveer ")) break;
-            accionesParts.push(lines[j]);
-            j++;
+            accionesParts.push(lines[j]); j++;
           }
+
           const acciones = normalizeSpaces(accionesParts.join(" "));
           if(acciones.length >= 8){
-            out.push({ id: uid(), n, pct, weight:0, text: acciones, inter:"1", paper:"1", tool:"1" });
+            out.push({ id: uid(), pct, weight: 0, text: acciones, inter:"1", paper:"1", tool:"1" });
           }
           i = j;
         }
 
-        out.sort((a,b)=>a.n - b.n);
         const sumPct = out.reduce((acc,r)=>acc + (Number(r.pct)||0), 0) || 1;
         out.forEach(r => r.weight = (Number(r.pct)||0)/sumPct);
         return out;
-      }
-
-      function initDemo(){
-        const sum = demoFuncs.reduce((a,r)=>a+r.pct,0);
-        state.funcs = demoFuncs.map((d,idx)=>({
-          id: uid(), n: idx+1, pct:d.pct, weight:d.pct/sum,
-          text:d.text, inter:"1", paper:"1", tool:"1"
-        }));
       }
 
       function relFromKey(key){
@@ -328,76 +645,77 @@
       function scoreFunc01(f){
         return (W.inter*relFromKey(f.inter) + W.paper*relFromKey(f.paper) + W.tool*relFromKey(f.tool));
       }
+      function clamp01(x){
+        if(Number.isNaN(x)) return 0;
+        return Math.max(0, Math.min(1, x));
+      }
       function computeGlobal(){
         if(state.funcs.length === 0) return null;
-        let total=0, sumW=0;
+        let total01 = 0;
         for(const f of state.funcs){
-          total += f.weight * scoreFunc01(f);
-          sumW += f.weight;
+          const wf = clamp01(Number(f.weight));
+          total01 += wf * scoreFunc01(f);
         }
-        const s01 = sumW ? total/sumW : 0;
-        return {score01:s01, score100: Math.round(s01*100)};
+        const sumW = state.funcs.reduce((acc,f)=>acc + clamp01(Number(f.weight)), 0) || 1;
+        total01 = total01 / sumW;
+        return { score01: total01, score100: Math.round(total01 * 100) };
       }
+
       function labelFromScore100(s){
-        if(s>=70) return {t:"Alta", cls:"good"};
-        if(s>=50) return {t:"Media", cls:"warn"};
-        return {t:"Baja", cls:"bad"};
+        if(s >= 70) return {t:"Alta"};
+        if(s >= 50) return {t:"Media"};
+        return {t:"Baja"};
       }
+
       function recommendModel(score){
-        if(score < 50) return "presencial";
-        if(score < 70) return "4p1t";
-        if(score < 80) return "3p2t";
-        return "100t";
+        if(score < 50) return { key:"presencial", label:"Presencial" };
+        if(score < 70) return { key:"4p1t", label:"4 Presencial / 1 Teletrabajo" };
+        if(score < 80) return { key:"3p2t", label:"3 Presencial / 2 Teletrabajo" };
+        return { key:"100t", label:"100% Teletrabajo" };
       }
-      function modelLabel(m){
-        return ({presencial:"Presencial","4p1t":"4 Presencial / 1 Teletrabajo","3p2t":"3 Presencial / 2 Teletrabajo","100t":"100% Teletrabajo"})[m] || "—";
+
+      function presenceLabel(key){
+        const it = presenceOptions.find(o => o.key === key);
+        return it ? it.label : "—";
       }
-      function escapeHtml(s){
-        return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-      }
-      function shortTitle(s){
-        s = normalizeSpaces(s);
-        return s.length>44 ? s.slice(0,44).trim()+"…" : s;
-      }
+
       function renormalizeWeights(){
-        const sum = state.funcs.reduce((a,r)=>a + (Number(r.pct)||0),0) || 1;
+        const sum = state.funcs.reduce((acc,r)=>acc + (Number(r.pct)||0), 0) || 1;
         state.funcs.forEach(r => r.weight = (Number(r.pct)||0)/sum);
       }
+
       function renderModels(activeKey){
         document.querySelectorAll(".mtRow").forEach(n=>n.classList.remove("active"));
-        const a = document.querySelector(`.mtRow[data-model="${activeKey}"]`);
+        const a = activeKey ? document.querySelector(`.mtRow[data-model="${activeKey}"]`) : null;
         if(a) a.classList.add("active");
       }
+
       function renderBars(){
         const box = el("bars");
-        box.innerHTML="";
-        state.funcs.forEach(f=>{
+        box.innerHTML = "";
+        state.funcs.forEach(f => {
           const pct = Math.round(scoreFunc01(f)*100);
           const row = document.createElement("div");
-          row.className="barItem";
+          row.className = "barItem";
           row.innerHTML = `
             <div class="barPct">${pct}%</div>
-            <div class="barName" title="${escapeHtml(f.text)}">${escapeHtml(shortTitle(f.text))}</div>
+            <div class="barName" title="${escapeHtml(f.text)}">${escapeHtml(f.text)}</div>
             <div class="track"><div class="tfill" style="width:${pct}%"></div></div>
           `;
           box.appendChild(row);
         });
       }
+
       function presenceSelect(k,id,selected){
         return `<select data-k="${k}" data-id="${id}">
           ${presenceOptions.map(o=>`<option value="${o.key}" ${o.key===selected?"selected":""}>${o.label}</option>`).join("")}
         </select>`;
       }
-      function move(id,dir){
-        const i = state.funcs.findIndex(f=>f.id===id);
-        const j = i+dir;
-        if(i<0||j<0||j>=state.funcs.length) return;
-        const t=state.funcs[i]; state.funcs[i]=state.funcs[j]; state.funcs[j]=t;
-      }
+
       function renderTable(){
         const tb = el("tbody");
-        tb.innerHTML="";
-        state.funcs.forEach(f=>{
+        tb.innerHTML = "";
+        state.funcs.forEach(f => {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${escapeHtml(f.text)}</td>
@@ -407,39 +725,40 @@
             <td>${presenceSelect("tool", f.id, f.tool)}</td>
             <td style="text-align:right">
               <div class="actions">
-                <button class="iconbtn" data-act="up" data-id="${f.id}">↑</button>
-                <button class="iconbtn" data-act="down" data-id="${f.id}">↓</button>
-                <button class="iconbtn" data-act="del" data-id="${f.id}">×</button>
+                <button class="iconbtn" data-act="del" data-id="${f.id}" type="button" title="Eliminar">×</button>
               </div>
             </td>
           `;
           tb.appendChild(tr);
         });
 
-        tb.querySelectorAll("select,input").forEach(n=>{
-          n.addEventListener("input", ()=>{
+        tb.querySelectorAll("select,input").forEach(n => {
+          n.addEventListener("input", () => {
             const id = n.getAttribute("data-id");
             const k  = n.getAttribute("data-k");
-            const fx = state.funcs.find(x=>x.id===id);
+            const fx = state.funcs.find(x => x.id === id);
             if(!fx) return;
-            if(k==="pct"){ fx.pct = Math.max(0, Math.min(100, Number(n.value)||0)); renormalizeWeights(); }
-            else { fx[k] = n.value; }
+
+            if(k === "pct"){
+              fx.pct = Math.max(0, Math.min(100, Number(n.value)||0));
+              renormalizeWeights();
+            } else {
+              fx[k] = n.value;
+            }
             renderAll();
           });
         });
 
-        tb.querySelectorAll("button[data-act]").forEach(b=>{
-          b.addEventListener("click", ()=>{
-            const act = b.getAttribute("data-act");
+        tb.querySelectorAll("button[data-act]").forEach(b => {
+          b.addEventListener("click", () => {
             const id  = b.getAttribute("data-id");
-            if(act==="del") state.funcs = state.funcs.filter(x=>x.id!==id);
-            if(act==="up") move(id,-1);
-            if(act==="down") move(id,1);
+            state.funcs = state.funcs.filter(x => x.id !== id);
             renormalizeWeights();
             renderAll();
           });
         });
       }
+
       function renderExecutive(glob){
         if(!glob){
           el("globalPct").textContent="—";
@@ -447,75 +766,193 @@
           el("globalBar").style.width="0%";
           el("modelPill").textContent="—";
           el("globalExplain").textContent="Carga funciones para calcular.";
-          el("funcCount").textContent="0 funciones";
+          el("funcCount").textContent = "0 funciones";
           renderModels(null);
           el("bars").innerHTML="";
           return;
         }
-        const tag = labelFromScore100(glob.score100);
-        el("globalPct").textContent = `${glob.score100}%`;
+
+        const score = glob.score100;
+        const tag = labelFromScore100(score);
+        el("globalPct").textContent = `${score}%`;
         el("globalTag").textContent = `Factibilidad ${tag.t}`;
         el("funcCount").textContent = `${state.funcs.length} funciones`;
-        el("globalBar").style.width = `${glob.score100}%`;
-        const key = recommendModel(glob.score100);
-        el("modelPill").textContent = modelLabel(key);
+
+        el("globalBar").style.width = `${score}%`;
+
+        const model = recommendModel(score);
+        el("modelPill").textContent = model.label;
+        renderModels(model.key);
+
         el("globalExplain").textContent = "Índice ponderado por “% Importancia” del cargo.";
-        renderModels(key);
         renderBars();
       }
+
       function renderAll(){
         el("issueDate").textContent = nowDDMMYYYY();
         el("cargoTitle").textContent = state.cargo || "Cargo —";
         renderExecutive(computeGlobal());
         renderTable();
       }
+
+      /* ✅ Limpiar robusto */
       function resetAll(){
-        state.cargo = "BIM Manager";
-        initDemo();
-        el("rawText").value="";
-        el("file").value="";
-        setAlert(typeof mammoth === "undefined");
+        state.cargo = "—";
+        state.funcs = [];
+        el("rawText").value = "";
+        el("file").value = "";
         renderAll();
       }
 
-      el("clearBtn").addEventListener("click", resetAll);
+      /* ✅ PDF: genera hoja imprimible y dispara print (Guardar como PDF) */
+      function buildPrintableHtml(){
+        const glob = computeGlobal();
+        const score = glob ? glob.score100 : null;
+        const model = score !== null ? recommendModel(score).label : "—";
+        const cargo = state.cargo || "Cargo —";
+        const fecha = nowDDMMYYYY();
 
-      el("parseBtn").addEventListener("click", async ()=>{
+        const rows = state.funcs.map(f => `
+          <tr>
+            <td>${escapeHtml(f.text)}</td>
+            <td style="text-align:center;font-weight:800">${Number(f.pct)||0}%</td>
+            <td>${escapeHtml(presenceLabel(f.inter))}</td>
+            <td>${escapeHtml(presenceLabel(f.paper))}</td>
+            <td>${escapeHtml(presenceLabel(f.tool))}</td>
+          </tr>
+        `).join("");
+
+        return `
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Reporte PDF</title>
+<style>
+  :root{--ink:#0E1726;--muted:#5B677A;--line:#E7ECF3;--navy:#102030;--purple:#4E38C8;}
+  body{font-family:Arial,system-ui;margin:0;color:var(--ink);}
+  .top{background:linear-gradient(90deg,var(--navy),#122B40);color:#fff;padding:18px 22px}
+  .kicker{letter-spacing:.22em;font-weight:800;font-size:11px;opacity:.9;margin:0 0 6px;text-transform:uppercase}
+  .cargo{margin:0;font-size:24px;font-weight:900}
+  .meta{margin-top:10px;font-size:12px;opacity:.95}
+  .wrap{padding:18px 22px}
+  h2{margin:16px 0 10px;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+  .card{border:1px solid var(--line);border-radius:12px;padding:12px}
+  .kpi{display:flex;justify-content:space-between;gap:14px;align-items:flex-end}
+  .big{font-size:34px;font-weight:900;margin:0}
+  .small{color:var(--muted);font-size:12px;margin:0}
+  .pill{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:900;text-align:center}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{border-bottom:1px solid var(--line);padding:10px;vertical-align:top}
+  th{background:#F7F9FD;text-align:left}
+  @media print{ @page{margin:12mm} }
+</style>
+</head>
+<body>
+  <div class="top">
+    <p class="kicker">REPORTE DE FACTIBILIDAD</p>
+    <h1 class="cargo">${escapeHtml(cargo)}</h1>
+    <div class="meta"><b>Fecha:</b> ${fecha}</div>
+    <div class="meta">Evalúa la Factibilidad de Teletrabajar del cargo. Sube la descripción y se calculará la viabilidad del teletrabajo.</div>
+  </div>
+
+  <div class="wrap">
+    <h2>Resultado Ejecutivo</h2>
+    <div class="card">
+      <div class="kpi">
+        <div>
+          <p class="small">Factibilidad</p>
+          <p class="big">${score !== null ? score + "%" : "—"}</p>
+        </div>
+        <div style="text-align:right">
+          <p class="small">Modelo sugerido</p>
+          <p style="margin:0;font-weight:900">${escapeHtml(model)}</p>
+        </div>
+      </div>
+      <div class="pill">Modelo recomendado: ${escapeHtml(model)}</div>
+    </div>
+
+    <h2>Matriz de Evaluación</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:44%">FUNCIÓN DEL CARGO</th>
+            <th style="width:10%">PESO %</th>
+            <th style="width:15%">INTERLOCUCIÓN</th>
+            <th style="width:15%">DOC. EN PAPEL</th>
+            <th style="width:16%">HERRAMIENTAS FÍSICAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows || `<tr><td colspan="5" style="color:#5B677A">Sin funciones cargadas.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>`;
+      }
+
+      function downloadPdf(){
+        const win = window.open("", "_blank");
+        if(!win){
+          alert("Tu navegador bloqueó la ventana emergente. Permite pop-ups para descargar el PDF.");
+          return;
+        }
+        win.document.open();
+        win.document.write(buildPrintableHtml());
+        win.document.close();
+        win.focus();
+        win.print();
+      }
+
+      /* ====== Wire buttons ====== */
+      el("clearBtn").addEventListener("click", (e) => { e.preventDefault(); resetAll(); });
+
+      el("pdfBtn").addEventListener("click", (e) => { e.preventDefault(); downloadPdf(); });
+
+      el("parseBtn").addEventListener("click", async (e) => {
+        e.preventDefault();
         let text = normalizeSpaces(el("rawText").value || "");
         const f = el("file").files && el("file").files[0];
 
-        try{
-          if(f){
-            if(!f.name.toLowerCase().endsWith(".docx")){
-              alert("Solo .docx (no .doc).");
-              return;
-            }
-            text = await readDocx(f);
-            el("rawText").value = text;
-          }
-          if(!text){
-            // si no cargó nada, mantenemos demo
+        if(f){
+          if(!f.name.toLowerCase().endsWith(".docx")){
+            alert("Solo .docx (no .doc). Convierte el archivo a .docx y vuelve a intentar.");
             return;
           }
-
-          state.cargo = pickCargoTitle(text);
-          const block = slicePrincipalesResultadosBlock(text);
-          const rows = parseRowsFromBlock(block);
-          state.funcs = rows.length ? rows : state.funcs;
-
-          renormalizeWeights();
-          renderAll();
-        }catch(e){
-          console.error(e);
-          // Deja demo visible y muestra alerta
-          setAlert(true);
-          renderAll();
+          try{
+            text = await readDocx(f);
+            el("rawText").value = text;
+          }catch(err){
+            console.error(err);
+            alert("No pude leer el .docx. Prueba pegando el fragmento de la tabla manualmente.");
+            return;
+          }
         }
+
+        if(!text){
+          alert("No hay contenido para procesar. Sube un .docx o pega la tabla de Principales Resultados.");
+          return;
+        }
+
+        state.cargo = pickCargoTitle(text) || "—";
+
+        const block = slicePrincipalesResultadosBlock(text);
+        const rows = parseRowsFromBlock(block);
+
+        state.funcs = rows.length ? rows : [];
+        if(state.funcs.length === 0){
+          alert("No detecté filas de “Principales Resultados”. Pega solo la tabla (N°, % Importancia, Acciones...).");
+        }
+        renormalizeWeights();
+        renderAll();
       });
 
-      // BOOT: demo visible
-      initDemo();
-      setAlert(typeof mammoth === "undefined");
+      // boot
+      el("issueDate").textContent = nowDDMMYYYY();
       renderAll();
     })();
   </script>
