@@ -364,7 +364,6 @@
       color:var(--ink);
       outline:none;
     }
-    /* Peso más visible */
     input[type="number"]{
       max-width:110px;
       text-align:center;
@@ -372,17 +371,6 @@
       padding:9px 10px;
       border-radius:12px;
     }
-    .actions{ display:flex; gap:8px; justify-content:flex-end }
-    .iconbtn{
-      border:1px solid var(--line2);
-      background:#fff;
-      border-radius:10px;
-      padding:7px 10px;
-      cursor:pointer;
-      font-weight:1000;
-      color:#2A3854;
-    }
-    .iconbtn:hover{ background:#F7F9FF; }
 
     /* Print */
     @media print{
@@ -406,17 +394,17 @@
         <div class="metaRight">
           <div class="pill"><b>Fecha</b> <span id="issueDate">—</span></div>
 
-          <!-- ✅ Botón PDF -->
+          <!-- Botón PDF (morado + letras blancas) -->
           <button id="pdfBtn" type="button"
-  class="pill"
-  style="cursor:pointer; background:linear-gradient(90deg,var(--purple),var(--purple2)); color:#fff; border:1px solid rgba(255,255,255,.18);">
-  <b style="color:#fff;">Descargar</b> PDF
-</button>
+            class="pill"
+            style="cursor:pointer; background:linear-gradient(90deg,var(--purple),var(--purple2)); color:#fff; border:1px solid rgba(255,255,255,.18);">
+            <b style="color:#fff;">Descargar</b> PDF
+          </button>
         </div>
       </div>
 
       <div class="subline" id="sublineText">Evalúa la Factibilidad de Teletrabajar del cargo
-Sube la descripción de cargo se desglosará las funciones, asignará pesos de importancia y calculará la viabilidad de teletrabajo del cargo.</div>
+Sube la descripción de cargo y nuestra IA desglosará las funciones, asignará pesos de importancia y calculará la viabilidad del teletrabajo.</div>
     </div>
 
     <div class="content">
@@ -460,7 +448,7 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
             </div>
             <div class="bar"><div class="fill" id="globalBar"></div></div>
             <div class="modelPill" id="modelPill">—</div>
-            <div class="mutedNote" id="globalExplain">Carga funciones para calcular.</div>
+            <div class="mutedNote" id="globalExplain">Debes seleccionar Interlocución, Documento en papel y Herramientas físicas para calcular la factibilidad.</div>
           </div>
         </div>
 
@@ -516,12 +504,11 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         <table>
           <thead>
             <tr>
-              <th style="width:38%">FUNCIÓN DEL CARGO</th>
+              <th style="width:40%">FUNCIÓN DEL CARGO</th>
               <th style="width:10%">PESO %</th>
-              <th style="width:17%">INTERLOCUCIÓN <span class="dimSub">Peso: 60%</span></th>
-              <th style="width:17%">DOC. EN PAPEL <span class="dimSub">Peso: 20%</span></th>
+              <th style="width:16%">INTERLOCUCIÓN <span class="dimSub">Peso: 60%</span></th>
+              <th style="width:16%">DOC. EN PAPEL <span class="dimSub">Peso: 20%</span></th>
               <th style="width:18%">HERRAMIENTAS FÍSICAS <span class="dimSub">Peso: 20%</span></th>
-            
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -534,7 +521,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
     </div>
   </div>
 
-  <!-- DOCX parser -->
   <script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 
   <script>
@@ -630,7 +616,7 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
 
           const acciones = normalizeSpaces(accionesParts.join(" "));
           if(acciones.length >= 8){
-            out.push({ id: uid(), pct, weight: 0, text: acciones, inter:"1", paper:"1", tool:"1" });
+            out.push({ id: uid(), pct, weight: 0, text: acciones, inter:"", paper:"", tool:"" });
           }
           i = j;
         }
@@ -651,8 +637,14 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         if(Number.isNaN(x)) return 0;
         return Math.max(0, Math.min(1, x));
       }
+
+      // ✅ Nuevo: requiere selección completa para calcular
+      function isComplete(){
+        return state.funcs.length > 0 && state.funcs.every(f => f.inter && f.paper && f.tool);
+      }
+
       function computeGlobal(){
-        if(state.funcs.length === 0) return null;
+        if(!isComplete()) return null;
         let total01 = 0;
         for(const f of state.funcs){
           const wf = clamp01(Number(f.weight));
@@ -708,8 +700,10 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         });
       }
 
+      // ✅ Nuevo: select con placeholder “Selecciona…”
       function presenceSelect(k,id,selected){
         return `<select data-k="${k}" data-id="${id}">
+          <option value="" ${selected==="" ? "selected":""} disabled>Selecciona…</option>
           ${presenceOptions.map(o=>`<option value="${o.key}" ${o.key===selected?"selected":""}>${o.label}</option>`).join("")}
         </select>`;
       }
@@ -725,7 +719,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
             <td>${presenceSelect("inter", f.id, f.inter)}</td>
             <td>${presenceSelect("paper", f.id, f.paper)}</td>
             <td>${presenceSelect("tool", f.id, f.tool)}</td>
-            
           `;
           tb.appendChild(tr);
         });
@@ -746,15 +739,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
             renderAll();
           });
         });
-
-        tb.querySelectorAll("button[data-act]").forEach(b => {
-          b.addEventListener("click", () => {
-            const id  = b.getAttribute("data-id");
-            state.funcs = state.funcs.filter(x => x.id !== id);
-            renormalizeWeights();
-            renderAll();
-          });
-        });
       }
 
       function renderExecutive(glob){
@@ -763,8 +747,8 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
           el("globalTag").textContent="—";
           el("globalBar").style.width="0%";
           el("modelPill").textContent="—";
-          el("globalExplain").textContent="Carga funciones para calcular.";
-          el("funcCount").textContent = "0 funciones";
+          el("globalExplain").textContent="Debes seleccionar Interlocución, Documento en papel y Herramientas físicas para calcular la factibilidad.";
+          el("funcCount").textContent = `${state.funcs.length} funciones`;
           renderModels(null);
           el("bars").innerHTML="";
           return;
@@ -793,7 +777,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         renderTable();
       }
 
-      /* ✅ Limpiar robusto */
       function resetAll(){
         state.cargo = "—";
         state.funcs = [];
@@ -802,7 +785,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         renderAll();
       }
 
-      /* ✅ PDF: genera hoja imprimible y dispara print (Guardar como PDF) */
       function buildPrintableHtml(){
         const glob = computeGlobal();
         const score = glob ? glob.score100 : null;
@@ -828,7 +810,7 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Reporte PDF</title>
 <style>
-  :root{--ink:#0E1726;--muted:#5B677A;--line:#E7ECF3;--navy:#102030;--purple:#4E38C8;}
+  :root{--ink:#0E1726;--muted:#5B677A;--line:#E7ECF3;--navy:#102030;}
   body{font-family:Arial,system-ui;margin:0;color:var(--ink);}
   .top{background:linear-gradient(90deg,var(--navy),#122B40);color:#fff;padding:18px 22px}
   .kicker{letter-spacing:.22em;font-weight:800;font-size:11px;opacity:.9;margin:0 0 6px;text-transform:uppercase}
@@ -840,7 +822,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
   .kpi{display:flex;justify-content:space-between;gap:14px;align-items:flex-end}
   .big{font-size:34px;font-weight:900;margin:0}
   .small{color:var(--muted);font-size:12px;margin:0}
-  .pill{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;font-weight:900;text-align:center}
   table{width:100%;border-collapse:collapse;font-size:12px}
   th,td{border-bottom:1px solid var(--line);padding:10px;vertical-align:top}
   th{background:#F7F9FD;text-align:left}
@@ -868,20 +849,18 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
           <p style="margin:0;font-weight:900">${escapeHtml(model)}</p>
         </div>
       </div>
-      <div class="pill">Modelo recomendado: ${escapeHtml(model)}</div>
     </div>
 
     <h2>Matriz de Evaluación</h2>
     <div class="card">
       <table>
         <thead>
-        
           <tr>
-           <th style="width:40%">FUNCIÓN DEL CARGO</th>
-<th style="width:15%">PESO %</th>
-<th style="width:16%">INTERLOCUCIÓN <span class="dimSub">Peso: 60%</span></th>
-<th style="width:16%">DOC. EN PAPEL <span class="dimSub">Peso: 20%</span></th>
-<th style="width:18%">HERRAMIENTAS FÍSICAS <span class="dimSub">Peso: 20%</span></th>
+            <th style="width:44%">FUNCIÓN DEL CARGO</th>
+            <th style="width:10%">PESO %</th>
+            <th style="width:15%">INTERLOCUCIÓN</th>
+            <th style="width:15%">DOC. EN PAPEL</th>
+            <th style="width:16%">HERRAMIENTAS FÍSICAS</th>
           </tr>
         </thead>
         <tbody>
@@ -907,9 +886,7 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         win.print();
       }
 
-      /* ====== Wire buttons ====== */
       el("clearBtn").addEventListener("click", (e) => { e.preventDefault(); resetAll(); });
-
       el("pdfBtn").addEventListener("click", (e) => { e.preventDefault(); downloadPdf(); });
 
       el("parseBtn").addEventListener("click", async (e) => {
@@ -950,7 +927,6 @@ Sube la descripción de cargo se desglosará las funciones, asignará pesos de i
         renderAll();
       });
 
-      // boot
       el("issueDate").textContent = nowDDMMYYYY();
       renderAll();
     })();
