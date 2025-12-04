@@ -407,9 +407,11 @@
           <div class="pill"><b>Fecha</b> <span id="issueDate">—</span></div>
 
           <!-- ✅ Botón PDF -->
-          <button id="pdfBtn" type="button" class="pill" style="cursor:pointer">
-            <b>Descargar</b> PDF
-          </button>
+          <button id="pdfBtn" type="button"
+  class="pill"
+  style="cursor:pointer; background:linear-gradient(90deg,var(--purple),var(--purple2)); color:#fff; border:1px solid rgba(255,255,255,.18);">
+  <b style="color:#fff;">Descargar</b> PDF
+</button>
         </div>
       </div>
 
@@ -519,7 +521,7 @@ Sube la descripción de cargo y nuestra IA desglosará las funciones, asignará 
               <th style="width:17%">INTERLOCUCIÓN <span class="dimSub">Peso: 60%</span></th>
               <th style="width:17%">DOC. EN PAPEL <span class="dimSub">Peso: 20%</span></th>
               <th style="width:18%">HERRAMIENTAS FÍSICAS <span class="dimSub">Peso: 20%</span></th>
-              <th style="width:10%; text-align:right">Acciones</th>
+            
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -723,11 +725,7 @@ Sube la descripción de cargo y nuestra IA desglosará las funciones, asignará 
             <td>${presenceSelect("inter", f.id, f.inter)}</td>
             <td>${presenceSelect("paper", f.id, f.paper)}</td>
             <td>${presenceSelect("tool", f.id, f.tool)}</td>
-            <td style="text-align:right">
-              <div class="actions">
-                <button class="iconbtn" data-act="del" data-id="${f.id}" type="button" title="Eliminar">×</button>
-              </div>
-            </td>
+            
           `;
           tb.appendChild(tr);
         });
@@ -877,12 +875,13 @@ Sube la descripción de cargo y nuestra IA desglosará las funciones, asignará 
     <div class="card">
       <table>
         <thead>
+        
           <tr>
-            <th style="width:44%">FUNCIÓN DEL CARGO</th>
-            <th style="width:10%">PESO %</th>
-            <th style="width:15%">INTERLOCUCIÓN</th>
-            <th style="width:15%">DOC. EN PAPEL</th>
-            <th style="width:16%">HERRAMIENTAS FÍSICAS</th>
+           <th style="width:40%">FUNCIÓN DEL CARGO</th>
+<th style="width:15%">PESO %</th>
+<th style="width:16%">INTERLOCUCIÓN <span class="dimSub">Peso: 60%</span></th>
+<th style="width:16%">DOC. EN PAPEL <span class="dimSub">Peso: 20%</span></th>
+<th style="width:18%">HERRAMIENTAS FÍSICAS <span class="dimSub">Peso: 20%</span></th>
           </tr>
         </thead>
         <tbody>
